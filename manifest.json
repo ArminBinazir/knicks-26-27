@@ -1,0 +1,15 @@
+{
+  "name": "Blue & Orange — Knicks 26-27",
+  "short_name": "Knicks 26-27",
+  "description": "Knicks 2026-27 schedule tracker, results, and stats.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1a2b",
+  "theme_color": "#0b1a2b",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
