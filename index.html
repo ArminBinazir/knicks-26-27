@@ -266,6 +266,17 @@
   .toggle-btn.sel{background:var(--knicks-blue); color:#fff; border-color:var(--knicks-blue);}
   .toggle-btn.result-win.sel{background:var(--win); border-color:var(--win); color:#0b1a2b;}
   .toggle-btn.result-loss.sel{background:var(--loss); border-color:var(--loss); color:#fff;}
+
+  .mood-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;}
+  .mood-btn{
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:9px 4px; border-radius:10px; border:1px solid var(--line);
+    background:rgba(255,255,255,0.04); color:var(--silver); cursor:pointer;
+  }
+  .mood-btn .mood-emoji{font-size:19px;}
+  .mood-btn .mood-label{font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px;}
+  .mood-btn.sel{background:rgba(244,123,32,0.16); border-color:var(--knicks-orange); color:var(--paper);}
+  .mood-tag{font-size:14px; margin-left:4px;}
   .sheet-actions{display:flex; gap:10px; margin-top:16px;}
   .btn{
     flex:1; padding:12px; border-radius:10px; border:none; font-weight:800;
@@ -406,6 +417,17 @@
 
 <script>
 /* ---------------- Team data (ESPN abbr for logos) ---------------- */
+/* ---------------- Game vibe/mood tags ---------------- */
+const MOODS = [
+  {key:'fire',       emoji:'🔥', label:'Thriller'},
+  {key:'statement',  emoji:'😍', label:'Statement'},
+  {key:'chill',      emoji:'😌', label:'Chill Win'},
+  {key:'heartbreak', emoji:'💔', label:'Heartbreaker'},
+  {key:'rage',       emoji:'😤', label:'Rage Game'},
+  {key:'snooze',     emoji:'😴', label:'Snoozer'}
+];
+function moodFor(key){ return MOODS.find(m=>m.key===key); }
+
 const TEAMS = [
   {abbr:'atl', name:'Atlanta Hawks'}, {abbr:'bos', name:'Boston Celtics'},
   {abbr:'bkn', name:'Brooklyn Nets'}, {abbr:'cha', name:'Charlotte Hornets'},
@@ -821,9 +843,10 @@ function renderSnapshot(){
   l5.innerHTML = s.last5.map(g=>{
     const w = getResult(g)==='W';
     const scoreLine = hasScores(g) ? `${g.knicksScore}-${g.oppScore}` : (w?'Win':'Loss');
+    const moodEmoji = g.mood ? (moodFor(g.mood)?.emoji||'') : '';
     return `<div style="flex:1; text-align:center; background:rgba(255,255,255,0.04); border:1px solid var(--line); border-radius:10px; padding:10px 4px;">
       <img src="${logoUrl(g.opp)}" style="width:24px;height:24px;object-fit:contain;">
-      <div style="font-family:'Bebas Neue'; font-size:15px; margin-top:4px; color:${w?'var(--win)':'var(--loss)'}">${w?'W':'L'}</div>
+      <div style="font-family:'Bebas Neue'; font-size:15px; margin-top:4px; color:${w?'var(--win)':'var(--loss)'}">${w?'W':'L'} ${moodEmoji}</div>
       <div style="font-size:10px; color:var(--silver);">${scoreLine}</div>
     </div>`;
   }).join('');
@@ -860,11 +883,12 @@ function renderSchedule(){
       resultHtml = `<span class="g-chevron" style="color:var(--knicks-orange-2); font-weight:700;">Today ▸</span>`;
     }
     const timeNote = `${d.time} IRST${g.note ? ' · '+g.note : ''}`;
+    const moodTag = g.mood ? `<span class="mood-tag">${moodFor(g.mood)?.emoji||''}</span>` : '';
     html += `<div class="${cls}" data-id="${g.id}">
       <div class="g-date"><div class="d">${d.day}</div><div class="m">${d.mon}</div></div>
       <img class="g-logo" src="${logoUrl(g.opp)}">
       <div class="g-info">
-        <div class="g-opp">${g.home?'vs':'@'} ${teamName(g.opp)} <span class="ha">${g.home?'Home':'Away'}</span></div>
+        <div class="g-opp">${g.home?'vs':'@'} ${teamName(g.opp)} <span class="ha">${g.home?'Home':'Away'}</span>${moodTag}</div>
         <div class="g-note">${timeNote}</div>
       </div>
       ${resultHtml}
@@ -1077,6 +1101,12 @@ overlay.addEventListener('click', e=>{ if(e.target === overlay) closeSheet(); })
 function teamOptions(selected){
   return TEAMS.map(t=>`<option value="${t.abbr}" ${t.abbr===selected?'selected':''}>${t.name}</option>`).join('');
 }
+function moodGridHtml(selectedKey){
+  return `<div class="mood-grid">${MOODS.map(m=>`
+    <button type="button" class="mood-btn ${m.key===selectedKey?'sel':''}" data-mood="${m.key}">
+      <span class="mood-emoji">${m.emoji}</span><span class="mood-label">${m.label}</span>
+    </button>`).join('')}</div>`;
+}
 
 function openGameSheet(id){
   const g = games.find(x=>x.id===id);
@@ -1091,6 +1121,10 @@ function openGameSheet(id){
         <button type="button" class="toggle-btn result-win ${curRes==='W'?'sel':''}" id="f-win-btn">🏀 Win</button>
         <button type="button" class="toggle-btn result-loss ${curRes==='L'?'sel':''}" id="f-lose-btn">Lose</button>
       </div>
+    </div>
+    <div class="field">
+      <label>Game Vibe (optional)</label>
+      ${moodGridHtml(g.mood)}
     </div>
     <div class="field">
       <label>Date (ET)</label>
@@ -1157,6 +1191,15 @@ function openGameSheet(id){
   wb.addEventListener('click', ()=>{ resultSel = resultSel==='W' ? null : 'W'; wb.classList.toggle('sel', resultSel==='W'); lb.classList.remove('sel'); });
   lb.addEventListener('click', ()=>{ resultSel = resultSel==='L' ? null : 'L'; lb.classList.toggle('sel', resultSel==='L'); wb.classList.remove('sel'); });
 
+  let moodSel = g.mood || null;
+  sheetEl.querySelectorAll('.mood-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const k = btn.dataset.mood;
+      moodSel = (moodSel === k) ? null : k;
+      sheetEl.querySelectorAll('.mood-btn').forEach(b=> b.classList.toggle('sel', b.dataset.mood === moodSel));
+    });
+  });
+
   document.getElementById('closeSheetBtn').addEventListener('click', closeSheet);
   document.getElementById('deleteBtn').addEventListener('click', async ()=>{
     games = games.filter(x=>x.id!==id);
@@ -1172,6 +1215,7 @@ function openGameSheet(id){
     g.note = document.getElementById('f-note').value;
     g.knicksScore = ks === '' ? null : parseInt(ks);
     g.oppScore = os === '' ? null : parseInt(os);
+    g.mood = moodSel;
     // if exact scores given, they take precedence for the result
     if(g.knicksScore !== null && g.oppScore !== null){
       g.result = g.knicksScore > g.oppScore ? 'W' : 'L';
