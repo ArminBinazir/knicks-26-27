@@ -37,6 +37,7 @@
     font-family:'Archivo',sans-serif;
     min-height:100vh;
     padding-bottom:60px;
+    overflow-x:hidden;
   }
   .display{font-family:'Bebas Neue',sans-serif; letter-spacing:0.5px;}
 
@@ -240,20 +241,23 @@
   .sheet{
     background:var(--court-navy-2); width:100%; max-width:480px;
     border-radius:20px 20px 0 0; padding:20px 18px 26px;
-    max-height:88vh; overflow-y:auto;
+    max-height:88vh; overflow-y:auto; overflow-x:hidden;
     border-top:1px solid rgba(46,123,214,0.5);
   }
   .sheet h3{font-family:'Archivo Expanded'; margin:0 0 14px; font-size:16px; text-transform:uppercase; letter-spacing:0.5px;}
-  .field{margin-bottom:12px;}
+  .field{margin-bottom:12px; width:100%; min-width:0;}
   .field label{display:block; font-size:11px; color:var(--silver); text-transform:uppercase; letter-spacing:1px; margin-bottom:5px; font-weight:600;}
   .field select, .field input{
-    width:100%; padding:10px 12px; border-radius:9px; border:1px solid var(--line);
+    display:block; width:100%; max-width:100%; padding:10px 12px; border-radius:9px; border:1px solid var(--line);
     background:rgba(255,255,255,0.05); color:var(--paper); font-size:14px; font-family:'Archivo';
     min-width:0; box-sizing:border-box;
   }
+  .field input[type="date"], .field input[type="time"]{
+    -webkit-appearance:none; appearance:none;
+  }
   .field select:focus, .field input:focus{outline:1px solid var(--knicks-orange);}
-  .row2{display:flex; gap:10px; min-width:0;}
-  .row2 .field{flex:1; min-width:0;}
+  .row2{display:flex; gap:10px; min-width:0; max-width:100%;}
+  .row2 .field{flex:1 1 0; min-width:0; max-width:100%;}
   .toggle-group{display:flex; gap:8px;}
   .toggle-btn{
     flex:1; padding:9px; border-radius:9px; border:1px solid var(--line);
