@@ -249,10 +249,11 @@
   .field select, .field input{
     width:100%; padding:10px 12px; border-radius:9px; border:1px solid var(--line);
     background:rgba(255,255,255,0.05); color:var(--paper); font-size:14px; font-family:'Archivo';
+    min-width:0; box-sizing:border-box;
   }
   .field select:focus, .field input:focus{outline:1px solid var(--knicks-orange);}
-  .row2{display:flex; gap:10px;}
-  .row2 .field{flex:1;}
+  .row2{display:flex; gap:10px; min-width:0;}
+  .row2 .field{flex:1; min-width:0;}
   .toggle-group{display:flex; gap:8px;}
   .toggle-btn{
     flex:1; padding:9px; border-radius:9px; border:1px solid var(--line);
@@ -578,6 +579,9 @@ function etOffsetFor(dateStr){
 function gameUTCDate(g){
   const t = g.timeET || '19:00';
   return new Date(`${g.date}T${t}:00${etOffsetFor(g.date)}`);
+}
+function gameHasStarted(g){
+  return gameUTCDate(g).getTime() <= Date.now();
 }
 const TEHRAN_TZ = 'Asia/Tehran';
 function tehranISODate(utcDate){
@@ -990,17 +994,21 @@ function renderPredictTab(){
     upEl.innerHTML = upcoming.map(g=>{
       const d = fmtGameDate(g);
       const pick = predictions[g.id];
+      const locked = gameHasStarted(g);
+      const buttonsHtml = locked
+        ? `<div class="pick-buttons"><span style="font-size:11px; color:var(--silver); font-weight:700;">${pick ? '🔒 Picked '+(pick==='W'?'Win':'Lose') : '🔒 Locked'}</span></div>`
+        : `<div class="pick-buttons">
+            <button type="button" class="pick-btn ${pick==='W'?'sel-win':''}" data-id="${g.id}" data-pick="W">Win</button>
+            <button type="button" class="pick-btn ${pick==='L'?'sel-loss':''}" data-id="${g.id}" data-pick="L">Lose</button>
+          </div>`;
       return `<div class="pick-row">
         <div class="g-date"><div class="d">${d.day}</div><div class="m">${d.mon}</div></div>
         <img src="${logoUrl(g.opp)}">
         <div class="pick-info">
           <div class="pick-opp">${g.home?'vs':'@'} ${teamName(g.opp)}</div>
-          <div class="pick-time">${d.time} IRST</div>
+          <div class="pick-time">${d.time} IRST${locked ? ' · tipped off' : ''}</div>
         </div>
-        <div class="pick-buttons">
-          <button type="button" class="pick-btn ${pick==='W'?'sel-win':''}" data-id="${g.id}" data-pick="W">Win</button>
-          <button type="button" class="pick-btn ${pick==='L'?'sel-loss':''}" data-id="${g.id}" data-pick="L">Lose</button>
-        </div>
+        ${buttonsHtml}
       </div>`;
     }).join('');
     upEl.querySelectorAll('.pick-btn').forEach(btn=>{
@@ -1080,15 +1088,13 @@ function openGameSheet(id){
         <button type="button" class="toggle-btn result-loss ${curRes==='L'?'sel':''}" id="f-lose-btn">Lose</button>
       </div>
     </div>
-    <div class="row2">
-      <div class="field">
-        <label>Date (ET)</label>
-        <input type="date" id="f-date" value="${g.date}">
-      </div>
-      <div class="field">
-        <label>Tip-off (ET)</label>
-        <input type="time" id="f-time" value="${g.timeET||'19:00'}">
-      </div>
+    <div class="field">
+      <label>Date (ET)</label>
+      <input type="date" id="f-date" value="${g.date}">
+    </div>
+    <div class="field">
+      <label>Tip-off (ET)</label>
+      <input type="time" id="f-time" value="${g.timeET||'19:00'}">
     </div>
     <div class="field" style="margin-top:-6px;">
       <div id="tehranPreview" style="font-size:11.5px; color:var(--knicks-orange-2); font-weight:600;"></div>
@@ -1185,15 +1191,13 @@ function openNewGameSheet(){
         <button type="button" class="toggle-btn result-loss" id="f-lose-btn">Lose</button>
       </div>
     </div>
-    <div class="row2">
-      <div class="field">
-        <label>Date (ET)</label>
-        <input type="date" id="f-date" value="${todayET()}">
-      </div>
-      <div class="field">
-        <label>Tip-off (ET)</label>
-        <input type="time" id="f-time" value="19:00">
-      </div>
+    <div class="field">
+      <label>Date (ET)</label>
+      <input type="date" id="f-date" value="${todayET()}">
+    </div>
+    <div class="field">
+      <label>Tip-off (ET)</label>
+      <input type="time" id="f-time" value="19:00">
     </div>
     <div class="field" style="margin-top:-6px;">
       <div id="tehranPreview" style="font-size:11.5px; color:var(--knicks-orange-2); font-weight:600;"></div>
