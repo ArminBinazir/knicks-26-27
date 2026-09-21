@@ -547,6 +547,7 @@ const SEED_GAMES = [
    following calendar day here. */
 
 /* ---------------- Storage ---------------- */
+const SCHEDULE_VERSION = 'v2-full-80';
 const STORE_KEY = 'knicks-2627-games';
 const PREDICT_KEY = 'knicks-2627-predictions';
 let games = [];
@@ -564,30 +565,90 @@ async function savePredictions(){
   catch(e){ console.error('save predictions failed', e); }
 }
 
+function freshFromSeed(){
+  return SEED_GAMES.map(g=>({
+    id: g.date+'_'+g.opp,
+    date: g.date,
+    timeET: g.timeET || '19:00',
+    opp: g.opp,
+    home: g.home,
+    note: g.note || '',
+    played: false,
+    result: null,
+    knicksScore: null,
+    oppScore: null,
+    mood: null
+  }));
+}
+
 async function loadGames(){
+  let stored = null;
   try{
     const raw = localStorage.getItem(STORE_KEY);
-    games = raw ? JSON.parse(raw) : null;
-  }catch(e){ games = null; }
-  if(!games){
-    games = SEED_GAMES.map((g,i)=>({
-      id: 'g'+i+'_'+g.date,
-      date: g.date,
-      timeET: g.timeET || '19:00',
-      opp: g.opp,
-      home: g.home,
-      note: g.note || '',
-      played: false,
-      result: null,
-      knicksScore: null,
-      oppScore: null
-    }));
+    stored = raw ? JSON.parse(raw) : null;
+  }catch(e){ stored = null; }
+
+  if(!stored){
+    games = freshFromSeed();
     await saveGames();
+  } else if(Array.isArray(stored)){
+    // legacy format (no version wrapper) — migrate, carrying over any logged results by date+opp
+    const fresh = freshFromSeed();
+    let predictionsChanged = false;
+    fresh.forEach(ng=>{
+      const old = stored.find(og=> og.date===ng.date && og.opp===ng.opp);
+      if(old){
+        ng.played = old.played || false;
+        ng.result = old.result ?? null;
+        ng.knicksScore = old.knicksScore ?? null;
+        ng.oppScore = old.oppScore ?? null;
+        ng.mood = old.mood ?? null;
+        if(old.timeET) ng.timeET = old.timeET; // keep any manual time edit
+        if(old.id && old.id !== ng.id && predictions[old.id] !== undefined){
+          predictions[ng.id] = predictions[old.id];
+          delete predictions[old.id];
+          predictionsChanged = true;
+        }
+      }
+    });
+    games = fresh;
+    await saveGames();
+    if(predictionsChanged) await savePredictions();
+  } else if(stored.version !== SCHEDULE_VERSION){
+    // schedule was corrected since this device last loaded — refresh dates/opponents/notes,
+    // but keep anything already logged for a game that still exists
+    const fresh = freshFromSeed();
+    const oldGames = stored.games || [];
+    let predictionsChanged = false;
+    fresh.forEach(ng=>{
+      const old = oldGames.find(og=> og.id===ng.id || (og.date===ng.date && og.opp===ng.opp));
+      if(old){
+        ng.played = old.played || false;
+        ng.result = old.result ?? null;
+        ng.knicksScore = old.knicksScore ?? null;
+        ng.oppScore = old.oppScore ?? null;
+        ng.mood = old.mood ?? null;
+        if(old.timeET) ng.timeET = old.timeET;
+        if(old.id && old.id !== ng.id && predictions[old.id] !== undefined){
+          predictions[ng.id] = predictions[old.id];
+          delete predictions[old.id];
+          predictionsChanged = true;
+        }
+      }
+    });
+    // carry over any custom games the user added by hand that aren't part of the seed
+    const seedKeys = new Set(fresh.map(g=>g.id));
+    const customGames = oldGames.filter(og => !seedKeys.has(og.id) && !SEED_GAMES.some(sg=>sg.date===og.date && sg.opp===og.opp));
+    games = fresh.concat(customGames);
+    await saveGames();
+    if(predictionsChanged) await savePredictions();
+  } else {
+    games = stored.games || [];
   }
   storageReady = true;
 }
 async function saveGames(){
-  try{ localStorage.setItem(STORE_KEY, JSON.stringify(games)); }
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify({version: SCHEDULE_VERSION, games})); }
   catch(e){ console.error('save failed', e); }
 }
 
@@ -1338,8 +1399,8 @@ document.getElementById('addGameFab').addEventListener('click', openNewGameSheet
 
 /* ---------------- Init ---------------- */
 (async function init(){
-  await loadGames();
   await loadPredictions();
+  await loadGames();
   renderAll();
 })();
 
