@@ -372,6 +372,94 @@
   .hist-row .hist-mark{font-family:'Bebas Neue'; font-size:16px; width:26px; text-align:center; flex:none;}
   .hist-row .hist-mark.hit{color:var(--win);}
   .hist-row .hist-mark.miss{color:var(--loss);}
+
+  /* ============ Sync pill ============ */
+  .sync-pill{font:700 10px 'Archivo',sans-serif; letter-spacing:.4px; padding:4px 9px; border-radius:20px;
+    border:1px solid var(--line); background:rgba(255,255,255,.06); color:var(--silver); cursor:pointer; white-space:nowrap;}
+  .sync-pill.ok{color:var(--win); border-color:rgba(63,178,127,.4);}
+  .sync-pill.bad{color:var(--loss); border-color:rgba(224,90,90,.45);}
+  .sync-info{font-size:12px; color:var(--silver); line-height:1.6; margin-bottom:12px;}
+
+  /* ============ Watch Mode ============ */
+  .watch-btn{margin-top:12px; width:100%; padding:13px; border-radius:12px; border:1px solid rgba(244,123,32,.65);
+    background:rgba(244,123,32,.16); color:var(--paper); font:800 13px 'Archivo Expanded','Archivo',sans-serif;
+    letter-spacing:.6px; cursor:pointer; touch-action:manipulation;}
+  .watch-btn:active{transform:scale(.98);}
+  .watch-chip{margin-top:10px; display:flex; gap:8px; justify-content:center; font-size:12px; font-weight:700; color:var(--silver);}
+  .watch-chip span{background:rgba(255,255,255,.06); border:1px solid var(--line); border-radius:20px; padding:3px 10px;}
+
+  .watch{position:fixed; inset:0; z-index:200; display:none; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    background:radial-gradient(900px 420px at 50% -5%, var(--glow, transparent), transparent 70%), var(--court-navy);
+    padding:max(14px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));}
+  .watch.open{display:block;}
+  .w-inner{width:100%; max-width:720px; margin:0 auto; display:flex; flex-direction:column; gap:12px;}
+  .w-top{display:flex; align-items:center; justify-content:space-between;}
+  .w-eyebrow{font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:var(--knicks-orange-2); font-weight:700;}
+  .w-title{font-family:'Archivo Expanded',sans-serif; font-size:19px; margin:2px 0 0; font-weight:800;}
+  .w-x{background:rgba(255,255,255,.07); border:1px solid var(--line); color:var(--paper); width:40px; height:40px; border-radius:50%; font-size:16px; cursor:pointer;}
+
+  .w-qs{display:grid; grid-template-columns:repeat(5,1fr); gap:6px;}
+  .w-q{display:flex; flex-direction:column; align-items:center; gap:1px; padding:7px 2px; border-radius:10px; cursor:pointer;
+    border:1px solid var(--line); background:rgba(255,255,255,.04); color:var(--paper); font-family:'Archivo',sans-serif; touch-action:manipulation;}
+  .w-q b{font-family:'Bebas Neue',sans-serif; font-size:17px; letter-spacing:.5px; font-weight:400;}
+  .w-q span{font-size:10px; font-weight:700; line-height:1.2;}
+  .w-q .u{color:var(--knicks-orange-2);} .w-q .d{color:#ff8b8b;}
+  .w-q.sel{border-color:var(--knicks-orange); background:rgba(244,123,32,.16);}
+
+  .w-seg{display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--line); border-radius:14px; overflow:hidden; background:rgba(255,255,255,.04);}
+  .w-seg button{padding:13px 4px; border:none; background:none; color:var(--silver); font:800 14px 'Archivo',sans-serif; cursor:pointer; touch-action:manipulation;}
+  .w-seg button + button{border-left:1px solid var(--line);}
+  .w-seg button kbd, .w-btn kbd{font:700 10px 'Archivo',sans-serif; opacity:.6; margin-left:4px;}
+  .w-seg button.sel.up{background:var(--knicks-orange); color:var(--court-navy);}
+  .w-seg button.sel.close{background:var(--knicks-blue); color:#fff;}
+  .w-seg button.sel.down{background:var(--loss); color:#fff;}
+
+  .w-meter .w-ml{display:flex; justify-content:space-between; align-items:baseline; font-size:11px; color:var(--silver); font-weight:700; margin-bottom:6px;}
+  .w-meter .w-ml b{color:var(--paper); font-family:'Bebas Neue',sans-serif; font-size:18px; font-weight:400; letter-spacing:1px;}
+  .w-track{position:relative; height:14px; border-radius:8px; background:rgba(255,255,255,.07); border:1px solid var(--line); overflow:hidden;}
+  .w-mid{position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(255,255,255,.3);}
+  .w-fill{position:absolute; top:0; bottom:0; left:50%; width:0; background:var(--knicks-orange);}
+  .w-fill.neg{background:var(--loss);}
+  .w-dot{position:absolute; top:-1px; width:14px; height:14px; margin-left:-7px; border-radius:50%; background:var(--paper); left:50%; box-shadow:0 0 8px rgba(0,0,0,.5);}
+
+  .w-set-lbl{font-size:10px; letter-spacing:1.4px; text-transform:uppercase; color:var(--silver); font-weight:700; margin:2px 2px -6px;}
+  .w-set{display:grid; gap:10px;}
+  .w-set.big{grid-template-columns:repeat(2,1fr);}
+  .w-set.mid, .w-set.small{grid-template-columns:repeat(4,1fr); gap:8px;}
+  .w-btn{position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; border-radius:14px;
+    border:1px solid var(--line); background:rgba(255,255,255,.05); color:var(--paper); cursor:pointer; text-align:center; line-height:1.1;
+    touch-action:manipulation; user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent; transition:transform .08s;
+    font-family:'Archivo',sans-serif;}
+  .w-btn.hit{transform:scale(.93);}
+  .w-set.up .w-btn{border-color:rgba(244,123,32,.55); background:rgba(244,123,32,.10);}
+  .w-set.down .w-btn{border-color:rgba(224,90,90,.5); background:rgba(224,90,90,.09);}
+  .w-set.big .w-btn{min-height:104px;} .w-set.big .w-e{font-size:38px;} .w-set.big .w-l{font-size:14px; font-weight:800;}
+  .w-set.mid .w-btn{min-height:86px;}   .w-set.mid .w-e{font-size:27px;}  .w-set.mid .w-l{font-size:11px; font-weight:700;}
+  .w-set.small .w-btn{min-height:60px;} .w-set.small .w-e{font-size:20px;} .w-set.small .w-l{font-size:10px; font-weight:700;}
+  .w-btn kbd{position:absolute; top:6px; left:8px; margin:0;}
+  .w-n{position:absolute; top:5px; right:9px; font:700 12px 'Archivo',sans-serif; color:var(--silver);}
+  @media (hover:none){ .w-btn kbd, .w-seg kbd, .w-help{display:none;} }
+
+  .w-log{border:1px solid var(--line); border-radius:14px; padding:12px; background:rgba(255,255,255,.03);}
+  .w-log-t{font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--silver); font-weight:700; margin-bottom:8px;}
+  .w-log-row{display:flex; gap:8px; align-items:flex-end;}
+  .w-log-row label{flex:1; min-width:0; font-size:11px; color:var(--silver); font-weight:600;}
+  .w-log-row input{width:100%; margin-top:4px; padding:10px; border-radius:10px; border:1px solid var(--line); background:rgba(255,255,255,.06); color:var(--paper); font-size:16px;}
+  .w-log-row .btn{flex:none; padding:11px 14px;}
+  .w-sugg{margin-top:10px; padding:10px; border-radius:10px; background:rgba(46,123,214,.14); border:1px solid rgba(46,123,214,.45); font-size:13px;}
+  .w-sugg .sheet-actions{margin-top:8px; flex-wrap:wrap;}
+  .w-foot{display:flex; flex-direction:column; gap:8px; align-items:stretch;}
+  .w-help{font-size:11px; color:var(--silver); text-align:center; opacity:.75;}
+
+  .fp-chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:4px;}
+  .fp-chips span{font-size:12px; font-weight:700; background:rgba(255,255,255,.06); border:1px solid var(--line); border-radius:20px; padding:3px 9px;}
+  .fp-line{font-size:12px; color:var(--silver); margin-top:6px;}
+  .fp-line b{color:var(--paper);}
+
+  @media (prefers-reduced-motion: reduce){ .w-btn{transition:none;} }
+  .w-float{position:fixed; pointer-events:none; font-size:28px; z-index:300; animation:wfloat .7s ease-out forwards;}
+  @keyframes wfloat{ to{ transform:translateY(-70px); opacity:0; } }
+  @media (prefers-reduced-motion: reduce){ .w-float{display:none;} }
 </style>
 </head>
 <body>
@@ -385,7 +473,7 @@
         <h1>Blue &amp; Orange</h1>
       </div>
     </div>
-    <div class="banner-tag">🏆 Defending Champs</div>
+    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;"><div class="banner-tag">🏆 Defending Champs</div><button class="sync-pill" id="syncPill" type="button">⚪ Local only</button></div>
   </div>
 
   <div class="record-strip" id="recordStrip"></div>
@@ -439,6 +527,9 @@
 
       <div class="section-title" style="margin-top:20px;"><span class="num-tag">·</span><h2>Streaks</h2></div>
       <div class="stat-grid" id="streakGrid"></div>
+
+      <div class="section-title" style="margin-top:20px;"><span class="num-tag">🏀</span><h2>Fan Pulse</h2></div>
+      <div class="stat-grid" id="fanPulse"></div>
     </div>
   </div>
 
@@ -469,6 +560,8 @@
 <div class="overlay" id="overlay">
   <div class="sheet" id="sheet"></div>
 </div>
+
+<div class="watch" id="watch" aria-label="Watch Mode"></div>
 
 <script>
 /* ---------------- Team data (ESPN abbr for logos) ---------------- */
@@ -658,6 +751,8 @@ async function loadGames(){
         ng.knicksScore = old.knicksScore ?? null;
         ng.oppScore = old.oppScore ?? null;
         ng.mood = old.mood ?? null;
+        if(old.u) ng.u = old.u;
+        if(old.quarters) ng.quarters = old.quarters;
         if(old.timeET) ng.timeET = old.timeET; // keep any manual time edit
         if(old.id && old.id !== ng.id && predictions[old.id] !== undefined){
           predictions[ng.id] = predictions[old.id];
@@ -683,6 +778,8 @@ async function loadGames(){
         ng.knicksScore = old.knicksScore ?? null;
         ng.oppScore = old.oppScore ?? null;
         ng.mood = old.mood ?? null;
+        if(old.u) ng.u = old.u;
+        if(old.quarters) ng.quarters = old.quarters;
         if(old.timeET) ng.timeET = old.timeET;
         if(old.id && old.id !== ng.id && predictions[old.id] !== undefined){
           predictions[ng.id] = predictions[old.id];
@@ -894,10 +991,13 @@ function renderTodayGame(){
         <span>${g.home?'Home · MSG':'Away'}</span>
         <b>Tap to log result</b>
       </div>
+      <button class="watch-btn" type="button" data-watch="${g.id}">🔴 Watch Mode</button>
     `;
   }
-  el.innerHTML = `<div class="next-card today-card" data-id="${g.id}" style="cursor:pointer;">${bodyHtml}${g.note ? `<div class="next-meta" style="border-top:none; padding-top:4px;"><span>${g.note}</span></div>` : ''}</div>`;
+  el.innerHTML = `<div class="next-card today-card" data-id="${g.id}" style="cursor:pointer;">${bodyHtml}${g.note ? `<div class="next-meta" style="border-top:none; padding-top:4px;"><span>${g.note}</span></div>` : ''}${Watch.chipHtml(g.id)}</div>`;
   el.querySelector('.today-card').addEventListener('click', ()=> openGameSheet(g.id));
+  const wb = el.querySelector('.watch-btn');
+  if(wb) wb.addEventListener('click', e=>{ e.stopPropagation(); Watch.open(g.id); });
 }
 
 /* ---------------- Render: Next Game ---------------- */
@@ -1050,6 +1150,7 @@ function renderStatsTab(){
     <div class="stat-card"><div class="lbl">Current Streak</div><div class="val ${s.streakType==='W'?'pos':(s.streakType==='L'?'neg':'')}">${s.streakType?s.streakType+s.streak:'—'}</div></div>
     <div class="stat-card"><div class="lbl">Games Remaining</div><div class="val">${s.gamesLeft}</div><div class="sub">of ${games.length} tracked</div></div>
   `;
+  Watch.renderStats();
 }
 
 /* ---------------- Render: Opponents tab ---------------- */
@@ -1157,6 +1258,7 @@ function renderPredictTab(){
         const id = btn.dataset.id, pick = btn.dataset.pick;
         predictions[id] = (predictions[id] === pick) ? undefined : pick;
         if(predictions[id] === undefined) delete predictions[id];
+        Sync.touchPred(id);
         await savePredictions();
         renderPredictTab();
       });
@@ -1277,6 +1379,7 @@ function openGameSheet(id){
         <input type="number" id="f-os" value="${g.oppScore ?? ''}" placeholder="—" inputmode="numeric">
       </div>
     </div>
+    ${Watch.sheetHtml(g.id)}
     <div class="sheet-actions">
       <button class="btn btn-danger" id="deleteBtn">Delete</button>
       <button class="btn btn-primary" id="saveBtn">Save</button>
@@ -1316,6 +1419,7 @@ function openGameSheet(id){
   document.getElementById('closeSheetBtn').addEventListener('click', closeSheet);
   document.getElementById('deleteBtn').addEventListener('click', async ()=>{
     games = games.filter(x=>x.id!==id);
+    Sync.tombstone(id);
     await saveGames(); closeSheet(); renderAll();
   });
   document.getElementById('saveBtn').addEventListener('click', async ()=>{
@@ -1336,6 +1440,7 @@ function openGameSheet(id){
       g.result = resultSel;
     }
     g.played = (g.result === 'W' || g.result === 'L');
+    Sync.touchGame(g);
     await saveGames(); closeSheet(); renderAll();
   });
   overlay.classList.add('open');
@@ -1441,6 +1546,7 @@ function openNewGameSheet(){
       result,
       played: (result === 'W' || result === 'L')
     };
+    Sync.touchGame(newGame);
     games.push(newGame);
     await saveGames(); closeSheet(); renderAll();
   });
@@ -1449,11 +1555,524 @@ function openNewGameSheet(){
 
 document.getElementById('addGameFab').addEventListener('click', openNewGameSheet);
 
+/* ================= Local-storage helpers ================= */
+function lsRead(k, d){ try{ const r = localStorage.getItem(k); return r ? JSON.parse(r) : d; }catch(e){ return d; } }
+function lsWrite(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){ console.error('ls write failed', e); } }
+
+/* ================= Cross-device sync (Cloudflare Worker -> Supabase) =================
+   Offline-first: everything is still saved to localStorage instantly. Edits are queued in an
+   "outbox" and pushed to the Worker; other devices pull changes. Conflict rule = last write wins
+   per record (game / prediction / live state). Fan-pulse taps are stored per device, so two
+   devices tapping at once never overwrite each other (totals are summed). */
+const Sync = (function(){
+  const K = {cfg:'knicks-sync-cfg', out:'knicks-sync-outbox', cur:'knicks-sync-cursor', dev:'knicks-device',
+             tomb:'knicks-2627-tomb', predTs:'knicks-2627-predts', boot:'knicks-sync-boot', last:'knicks-sync-last'};
+  const DEFAULT_URL = '';   // optional: hard-code your Worker URL, e.g. 'https://knicks-sync.yourname.workers.dev'
+  let cfg = lsRead(K.cfg, null);
+  let outbox = lsRead(K.out, {});
+  let tomb = lsRead(K.tomb, {});
+  let predTs = lsRead(K.predTs, {});
+  let status = 'off', pushing = false, pulling = false, failures = 0, pushTimer = null, lastErr = '';
+  let deviceId = localStorage.getItem(K.dev);
+  if(!deviceId){ deviceId = Math.random().toString(36).slice(2,8); localStorage.setItem(K.dev, deviceId); }
+
+  const enabled = () => !!(cfg && cfg.url && cfg.key);
+  const base = () => cfg.url.replace(/\/+$/,'');
+  const stamp = prev => Math.max(Date.now(), (prev||0) + 1);
+  const pending = () => Object.keys(outbox).length;
+  const authHdr = () => ({'Authorization':'Bearer '+cfg.key});
+
+  function queue(key, value, u){
+    outbox[key] = {key, value, updated_at:u};
+    lsWrite(K.out, outbox);
+    if(enabled()) schedulePush();
+    paintPill();
+  }
+  function touchGame(g){ g.u = stamp(g.u); queue('game:'+g.id, JSON.parse(JSON.stringify(g)), g.u); }
+  function tombstone(id){ const u = stamp(tomb[id]); tomb[id] = u; lsWrite(K.tomb, tomb); queue('game:'+id, {deleted:true, id}, u); }
+  function touchPred(id){ const u = stamp(predTs[id]); predTs[id] = u; lsWrite(K.predTs, predTs); queue('pred:'+id, {v: predictions[id] || null}, u); }
+
+  function schedulePush(ms){ clearTimeout(pushTimer); pushTimer = setTimeout(push, ms ?? 800); }
+
+  async function push(){
+    if(!enabled() || pushing) return;
+    const items = Object.values(outbox).slice(0,200);
+    if(!items.length) return;
+    pushing = true; setStatus('syncing');
+    try{
+      const r = await fetch(base()+'/push', {method:'POST', headers:{...authHdr(), 'Content-Type':'application/json'}, body:JSON.stringify({items})});
+      if(r.status === 401) throw new Error('auth');
+      if(!r.ok) throw new Error('http '+r.status);
+      items.forEach(it=>{ const c = outbox[it.key]; if(c && c.updated_at === it.updated_at) delete outbox[it.key]; });
+      lsWrite(K.out, outbox); failures = 0; lastErr = ''; lsWrite(K.last, Date.now());
+      setStatus('ok');
+      if(pending()) schedulePush(200);
+    }catch(e){
+      failures++; lastErr = e.message;
+      setStatus(e.message === 'auth' ? 'error' : 'offline');
+      schedulePush(Math.min(60000, 3000 * 2 ** failures));
+    }finally{ pushing = false; }
+  }
+
+  function apply(row){
+    const i = row.key.indexOf(':'), type = row.key.slice(0,i), rest = row.key.slice(i+1), v = row.value, u = row.updated_at;
+    if(type === 'game'){
+      const id = rest, li = games.findIndex(x=>x.id === id), local = games[li];
+      if(v.deleted){
+        if(!tomb[id] || tomb[id] < u){ tomb[id] = u; lsWrite(K.tomb, tomb); }
+        if(local && (local.u||0) < u){ games.splice(li,1); return true; }
+        return false;
+      }
+      if(tomb[id] && tomb[id] >= u) return false;
+      v.u = v.u || u;
+      if(!local){ games.push(v); delete tomb[id]; return true; }
+      if((local.u||0) < v.u){                       // mutate in place so an open edit sheet keeps its reference
+        Object.keys(local).forEach(k=> delete local[k]);
+        Object.assign(local, v); return true;
+      }
+      return false;
+    }
+    if(type === 'pred'){
+      if((predTs[rest]||0) < u){
+        if(v.v) predictions[rest] = v.v; else delete predictions[rest];
+        predTs[rest] = u; return true;
+      }
+      return false;
+    }
+    if(type === 'taps'){ const j = rest.lastIndexOf(':'); return Watch.applyTaps(rest.slice(0,j), rest.slice(j+1), v, u); }
+    if(type === 'live'){ return Watch.applyLive(rest, v, u); }
+    return false;
+  }
+
+  // First connection on a device: anything logged locally that the server doesn't know yet gets uploaded.
+  function bootstrap(){
+    games.forEach(g=>{
+      const custom = !SEED_GAMES.some(sg=>sg.date===g.date && sg.opp===g.opp);
+      const hasData = g.played || g.mood || hasScores(g) || g.quarters;
+      if(!g.u && (custom || hasData)) touchGame(g);
+    });
+    Object.keys(predictions).forEach(id=>{ if(!predTs[id]) touchPred(id); });
+    Watch.queueAllOwn();
+    schedulePush(300);
+  }
+
+  function persistLocal(){ saveGames(); savePredictions(); lsWrite(K.tomb, tomb); lsWrite(K.predTs, predTs); Watch.persist(); }
+
+  async function pull(full){
+    if(!enabled() || pulling) return false;
+    pulling = true;
+    try{
+      const since = full ? '1970-01-01T00:00:00Z' : (lsRead(K.cur, null) || '1970-01-01T00:00:00Z');
+      const r = await fetch(base()+'/pull?since='+encodeURIComponent(since), {headers:authHdr()});
+      if(r.status === 401) throw new Error('auth');
+      if(!r.ok) throw new Error('http '+r.status);
+      const data = await r.json();
+      let changed = false;
+      data.rows.forEach(row=>{ try{ if(apply(row)) changed = true; }catch(e){ console.error('apply failed', row.key, e); } });
+      if(data.rows.length) lsWrite(K.cur, new Date(Date.parse(data.cursor) - 2000).toISOString());
+      if(!lsRead(K.boot, false)){ bootstrap(); lsWrite(K.boot, true); changed = true; }
+      if(changed){ persistLocal(); renderAll(); Watch.refresh(); }
+      lastErr = ''; lsWrite(K.last, Date.now());
+      setStatus(pending() ? 'syncing' : 'ok');
+      return changed;
+    }catch(e){
+      lastErr = e.message; setStatus(e.message === 'auth' ? 'error' : 'offline'); return false;
+    }finally{ pulling = false; }
+  }
+
+  async function syncNow(){ await pull(false); if(pending()) await push(); }
+
+  function setStatus(s){ status = s; paintPill(); }
+  function paintPill(){
+    const el = document.getElementById('syncPill'); if(!el) return;
+    const n = pending();
+    let t = '⚪ Local only', cls = '';
+    if(enabled()){
+      if(status === 'ok'){ t = '🟢 Synced'; cls = 'ok'; }
+      else if(status === 'syncing'){ t = '🟡 Syncing…'; }
+      else if(status === 'offline'){ t = '🟠 Offline' + (n ? ' · '+n+' pending' : ''); }
+      else if(status === 'error'){ t = '🔴 Check sync key'; cls = 'bad'; }
+      else t = '🟡 Connecting…';
+    }
+    el.textContent = t; el.className = 'sync-pill ' + cls;
+  }
+
+  function openSheet(){
+    const lastTs = lsRead(K.last, 0);
+    sheetEl.innerHTML = `
+      <button class="close-x" id="syClose">✕</button>
+      <h3>Sync across devices</h3>
+      <div class="field"><label>Worker URL</label><input id="syUrl" type="url" autocapitalize="off" autocorrect="off" value="${(cfg && cfg.url) || DEFAULT_URL}" placeholder="https://knicks-sync.yourname.workers.dev"></div>
+      <div class="field"><label>Sync key</label><input id="syKey" type="password" autocapitalize="off" autocorrect="off" value="${(cfg && cfg.key) || ''}" placeholder="the SYNC_KEY you set on the Worker"></div>
+      <div class="sync-info" id="syInfo">
+        ${enabled() ? 'Status: <b>'+status+'</b>' + (lastErr ? ' ('+lastErr+')' : '') + ' · pending changes: <b>'+pending()+'</b><br>Last sync: '+(lastTs ? new Date(lastTs).toLocaleTimeString() : 'never')+'<br>' : 'Not connected — this device only stores data locally.<br>'}
+        Device id: ${deviceId}
+      </div>
+      <div class="sheet-actions" style="flex-wrap:wrap;">
+        ${enabled() ? '<button class="btn btn-danger" id="syOff">Disconnect</button><button class="btn btn-ghost" id="syLink">Copy setup link</button>' : ''}
+        <button class="btn btn-primary" id="syGo">${enabled() ? 'Save & sync now' : 'Connect'}</button>
+      </div>`;
+    document.getElementById('syClose').addEventListener('click', closeSheet);
+    document.getElementById('syGo').addEventListener('click', async ()=>{
+      const url = document.getElementById('syUrl').value.trim(), key = document.getElementById('syKey').value.trim();
+      if(!url || !key){ document.getElementById('syInfo').textContent = 'Enter both the Worker URL and the sync key.'; return; }
+      if(!cfg || cfg.url !== url || cfg.key !== key){ localStorage.removeItem(K.cur); lsWrite(K.boot, false); }
+      cfg = {url, key}; lsWrite(K.cfg, cfg);
+      document.getElementById('syInfo').textContent = 'Connecting…';
+      await pull(true); await push(); closeSheet(); renderAll();
+    });
+    const off = document.getElementById('syOff');
+    if(off) off.addEventListener('click', ()=>{ cfg = null; localStorage.removeItem(K.cfg); setStatus('off'); closeSheet(); });
+    const link = document.getElementById('syLink');
+    if(link) link.addEventListener('click', async ()=>{
+      const l = location.origin + location.pathname + '#sync=' + encodeURIComponent(btoa(JSON.stringify({u:cfg.url, k:cfg.key})));
+      try{ await navigator.clipboard.writeText(l); link.textContent = 'Copied ✓'; }catch(e){ prompt('Copy this setup link:', l); }
+    });
+    overlay.classList.add('open');
+  }
+
+  function beforeRender(){
+    const m = location.hash.match(/^#sync=(.+)$/);        // setup link: open it on a new device once
+    if(m){
+      try{ const o = JSON.parse(atob(decodeURIComponent(m[1]))); cfg = {url:o.u, key:o.k}; lsWrite(K.cfg, cfg); localStorage.removeItem(K.cur); lsWrite(K.boot, false); }catch(e){}
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+    games = games.filter(g => !(tomb[g.id] && tomb[g.id] > (g.u||0)));   // keep deleted games deleted after schedule migrations
+    predTs = lsRead(K.predTs, {});
+    document.getElementById('syncPill').addEventListener('click', openSheet);
+    paintPill();
+  }
+
+  function start(){
+    const loop = ()=> setTimeout(async ()=>{
+      if(document.visibilityState === 'visible' && enabled()) await syncNow();
+      loop();
+    }, Watch.isOpen() ? 5000 : 30000);
+    loop();
+    document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible' && enabled()) syncNow(); });
+    window.addEventListener('online', ()=>{ if(enabled()) syncNow(); });
+    window.addEventListener('pagehide', ()=>{ if(enabled() && pending()) push(); });
+    if(enabled()){ setStatus('syncing'); pull(true).then(()=>{ if(pending()) push(); }); }
+  }
+
+  return {beforeRender, start, queue, touchGame, tombstone, touchPred, stamp, deviceId, openSheet, syncNow};
+})();
+
+/* ================= Watch Mode: live reaction taps, mood meter, quarter log ================= */
+const Watch = (function(){
+  const LSK = {taps:'knicks-2627-taps', live:'knicks-2627-live'};
+  const BTN = [
+    {k:'bucket',  e:'🔥', l:'Bucket',        side:'up'},
+    {k:'stop',    e:'🛡️', l:'Stop',          side:'up'},
+    {k:'splash',  e:'🎯', l:'Splash',        side:'up'},
+    {k:'garden',  e:'🙌', l:'Garden erupts', side:'up'},
+    {k:'refs',    e:'😤', l:'Refs',          side:'down'},
+    {k:'tov',     e:'🤦', l:'Turnover',      side:'down'},
+    {k:'brick',   e:'🧱', l:'Brick',         side:'down'},
+    {k:'drought', e:'🥶', l:'Drought',       side:'down'}
+  ];
+  const QS = ['1','2','3','4','OT'];
+  const CLOSE_MARGIN = 5;      // |lead| <= 5 at the end of a quarter => suggest "Close"
+  const HALF_LIFE = 25;        // seconds for the mood meter to fall halfway back to neutral
+  const STEP = 14;             // how far one tap pushes the meter (scale is -100..100)
+  const MODE_NAME = {up:'⬆️ Up', close:'⚖️ Close', down:'⬇️ Down'};
+
+  let taps = lsRead(LSK.taps, {});   // { gameId: { deviceId: { q:{ '1':{bucket:3,...} }, u } } }
+  let live = lsRead(LSK.live, {});   // { gameId: { mode, q, u } }  (shared so every device shows the same toggle/quarter)
+  const cur = {gid:null, mode:'close', q:'1', mood:0, t:0, hist:[], sugg:null};
+  let timer = 0;
+  const el = document.getElementById('watch');
+  const gameObj = () => games.find(x=>x.id === cur.gid);
+  const isOpen = () => el.classList.contains('open');
+  const clamp = n => Math.max(-100, Math.min(100, n));
+  const qLabel = q => q === 'OT' ? 'OT' : 'Q'+q;
+
+  function persist(){ lsWrite(LSK.taps, taps); lsWrite(LSK.live, live); }
+  function ownRec(gid){
+    taps[gid] = taps[gid] || {};
+    return taps[gid][Sync.deviceId] = taps[gid][Sync.deviceId] || {q:{}, u:0};
+  }
+  function queueOwn(gid){ const r = ownRec(gid); Sync.queue('taps:'+gid+':'+Sync.deviceId, {q:r.q}, r.u); }
+  function queueAllOwn(){ Object.keys(taps).forEach(gid=>{ const r = taps[gid][Sync.deviceId]; if(r && r.u) queueOwn(gid); }); }
+  function applyTaps(gid, dev, v, u){
+    const r = taps[gid] && taps[gid][dev];
+    if(r && r.u >= u) return false;
+    taps[gid] = taps[gid] || {};
+    taps[gid][dev] = {q: v.q || {}, u};
+    return true;
+  }
+  function applyLive(gid, v, u){
+    const l = live[gid]; if(l && l.u >= u) return false;
+    live[gid] = {mode:v.mode, q:v.q, u}; return true;
+  }
+
+  function totals(gid){
+    const t = {byKey:{}, byQ:{}, up:0, down:0, total:0};
+    Object.values(taps[gid] || {}).forEach(r=>{
+      Object.entries(r.q || {}).forEach(([q, m])=>{
+        Object.entries(m).forEach(([k, n])=>{
+          const b = BTN.find(x=>x.k === k); if(!b) return;
+          const bq = t.byQ[q] = t.byQ[q] || {up:0, down:0, keys:{}};
+          bq[b.side] += n; bq.keys[k] = (bq.keys[k]||0) + n;
+          t.byKey[k] = (t.byKey[k]||0) + n; t[b.side] += n; t.total += n;
+        });
+      });
+    });
+    return t;
+  }
+  function peak(t, side){      // most-tapped (quarter, button) on one side
+    let best = null;
+    Object.entries(t.byQ).forEach(([q, bq])=> Object.entries(bq.keys).forEach(([k, n])=>{
+      const b = BTN.find(x=>x.k === k);
+      if(b && b.side === side && (!best || n > best.n)) best = {q, k, n, b};
+    }));
+    return best;
+  }
+
+  /* ---- mood meter ---- */
+  function moodNow(){
+    const m = cur.mood * Math.pow(0.5, (Date.now() - cur.t) / 1000 / HALF_LIFE);
+    return Math.abs(m) < 1 ? 0 : m;
+  }
+  function moodLabel(m){
+    if(m > 60) return 'Erupting'; if(m > 25) return 'Hyped'; if(m > -25) return 'Locked in';
+    if(m > -60) return 'Frustrated'; return 'Raging';
+  }
+  function paintMood(){
+    if(!isOpen()) return;
+    const m = moodNow(), pct = (m + 100) / 2;
+    el.style.setProperty('--glow', m >= 0 ? `rgba(244,123,32,${(m/100*0.55).toFixed(3)})` : `rgba(224,90,90,${(-m/100*0.55).toFixed(3)})`);
+    const fill = el.querySelector('#wFill'), dot = el.querySelector('#wDot'), lbl = el.querySelector('#wMoodLbl');
+    if(!fill) return;
+    fill.style.left = Math.min(50, pct) + '%'; fill.style.width = Math.abs(pct - 50) + '%';
+    fill.classList.toggle('neg', m < 0); dot.style.left = pct + '%'; lbl.textContent = moodLabel(m);
+  }
+
+  /* ---- actions ---- */
+  function setLive(){
+    const prev = live[cur.gid], u = Sync.stamp(prev && prev.u);
+    live[cur.gid] = {mode:cur.mode, q:cur.q, u}; persist();
+    Sync.queue('live:'+cur.gid, {mode:cur.mode, q:cur.q}, u);
+  }
+  function setMode(m){ cur.mode = m; cur.sugg = null; setLive(); render(); }
+  function setQ(q){ cur.q = q; setLive(); render(); }
+  function stepQ(d){ const i = QS.indexOf(cur.q) + d; if(i >= 0 && i < QS.length) setQ(QS[i]); }
+
+  function tap(k, srcEl){
+    const b = BTN.find(x=>x.k === k); if(!b || !cur.gid) return;
+    const r = ownRec(cur.gid), m = (r.q[cur.q] = r.q[cur.q] || {});
+    m[k] = (m[k]||0) + 1; r.u = Sync.stamp(r.u); persist(); queueOwn(cur.gid);
+    cur.mood = clamp(moodNow() + (b.side === 'up' ? STEP : -STEP)); cur.t = Date.now();
+    cur.hist.push({q:cur.q, k}); if(cur.hist.length > 60) cur.hist.shift();
+    if(navigator.vibrate) navigator.vibrate(8);
+    updateCounts(); paintMood();
+    const node = srcEl || el.querySelector(`[data-tap="${k}"]`);
+    if(node){
+      node.classList.add('hit'); setTimeout(()=>node.classList.remove('hit'), 120);
+      const rc = node.getBoundingClientRect(), f = document.createElement('span');
+      f.className = 'w-float'; f.textContent = b.e; f.style.left = (rc.left + rc.width/2 - 14) + 'px'; f.style.top = (rc.top + 6) + 'px';
+      document.body.appendChild(f); setTimeout(()=>f.remove(), 750);
+    }
+  }
+  function undo(){
+    const h = cur.hist.pop(); if(!h) return;
+    const r = ownRec(cur.gid), m = r.q[h.q];
+    if(m && m[h.k] > 0){
+      m[h.k]--; if(m[h.k] === 0) delete m[h.k];
+      r.u = Sync.stamp(r.u); persist(); queueOwn(cur.gid);
+      const b = BTN.find(x=>x.k === h.k);
+      cur.mood = clamp(moodNow() - (b.side === 'up' ? STEP : -STEP)); cur.t = Date.now();
+    }
+    updateCounts(); paintMood();
+  }
+
+  function logQuarter(){
+    const g = gameObj(); if(!g) return;
+    const ks = parseInt(el.querySelector('#wKs').value, 10), os = parseInt(el.querySelector('#wOs').value, 10);
+    if(isNaN(ks) || isNaN(os)){ el.querySelector('#wKs').focus(); return; }
+    g.quarters = g.quarters || {}; g.quarters[cur.q] = {k:ks, o:os};
+    Sync.touchGame(g); saveGames();
+    const diff = ks - os;
+    const mode = diff > CLOSE_MARGIN ? 'up' : (diff < -CLOSE_MARGIN ? 'down' : 'close');
+    cur.sugg = {q:cur.q, diff, mode, ks, os};            // a suggestion only — the person confirms
+    const i = QS.indexOf(cur.q); if(i < 3){ cur.q = QS[i+1]; setLive(); }
+    render();
+  }
+  function saveFinal(){
+    const g = gameObj(), s = cur.sugg; if(!g || !s) return;
+    g.knicksScore = s.ks; g.oppScore = s.os; g.result = s.ks > s.os ? 'W' : 'L'; g.played = true;
+    Sync.touchGame(g); saveGames(); cur.sugg = null; render(); renderAll();
+  }
+
+  /* ---- rendering ---- */
+  function setHtml(side, size){
+    const lbl = side === 'up' ? 'Celebrate' : 'Vent';
+    return `<div class="w-set-lbl">${lbl}</div><div class="w-set ${side} ${size}">${BTN.filter(b=>b.side === side).map(b=>`
+      <button class="w-btn" data-tap="${b.k}"><kbd>${BTN.indexOf(b)+1}</kbd><span class="w-e">${b.e}</span><span class="w-l">${b.l}</span><span class="w-n" data-count="${b.k}"></span></button>`).join('')}</div>`;
+  }
+  function qChipsHtml(t){
+    return QS.map(q=>{ const bq = t.byQ[q] || {up:0, down:0};
+      return `<button class="w-q ${q === cur.q ? 'sel' : ''}" data-q="${q}"><b>${qLabel(q)}</b><span class="u">▲${bq.up}</span><span class="d">▼${bq.down}</span></button>`; }).join('');
+  }
+  function suggHtml(){
+    const s = cur.sugg; if(!s) return '';
+    const sign = s.diff > 0 ? '+' : '', same = s.mode === cur.mode;
+    const txt = same ? `${qLabel(s.q)} ended ${sign}${s.diff}. The toggle already matches (${MODE_NAME[s.mode]}).`
+                     : `${qLabel(s.q)} ended ${sign}${s.diff}. Switch the toggle to ${MODE_NAME[s.mode]}?`;
+    return `<div class="w-sugg">${txt}<div class="sheet-actions">
+      ${same ? '' : `<button class="btn btn-primary" data-act="applysugg">Switch to ${MODE_NAME[s.mode]}</button>`}
+      <button class="btn btn-ghost" data-act="dismiss">${same ? 'OK' : 'Keep '+MODE_NAME[cur.mode]}</button>
+      ${s.q === '4' ? `<button class="btn btn-ghost" data-act="final">Save ${s.ks}–${s.os} as final</button>` : ''}
+    </div></div>`;
+  }
+  function render(){
+    const g = gameObj(); if(!g){ close(); return; }
+    const opp = teamName(g.opp), qs = g.quarters || {}, logged = qs[cur.q];
+    const prevQ = QS[QS.indexOf(cur.q) - 1], prevLog = prevQ && qs[prevQ];
+    const primary = cur.mode === 'down' ? 'down' : 'up', secondary = primary === 'up' ? 'down' : 'up';
+    const sets = cur.mode === 'close' ? setHtml('up','mid') + setHtml('down','mid') : setHtml(primary,'big') + setHtml(secondary,'small');
+    el.innerHTML = `<div class="w-inner">
+      <div class="w-top"><div><div class="w-eyebrow">Watch Mode</div><h2 class="w-title">${g.home ? 'vs' : '@'} ${opp}</h2></div>
+        <button class="w-x" data-act="close" aria-label="Close">✕</button></div>
+      <div class="w-qs" id="wQs"></div>
+      <div class="w-seg">
+        ${['up','close','down'].map(m=>`<button data-mode="${m}" class="${cur.mode === m ? 'sel '+m : ''}">${MODE_NAME[m]}<kbd>${m[0].toUpperCase()}</kbd></button>`).join('')}
+      </div>
+      <div class="w-meter"><div class="w-ml"><span>😤 Rage</span><b id="wMoodLbl">Locked in</b><span>Hype 🔥</span></div>
+        <div class="w-track"><div class="w-mid"></div><div class="w-fill" id="wFill"></div><div class="w-dot" id="wDot"></div></div></div>
+      ${sets}
+      <div class="w-log">
+        <div class="w-log-t">Score at the end of ${qLabel(cur.q)}</div>
+        <div class="w-log-row">
+          <label>Knicks<input id="wKs" type="number" inputmode="numeric" value="${logged ? logged.k : ''}" placeholder="${prevLog ? prevLog.k : '—'}"></label>
+          <label>${opp}<input id="wOs" type="number" inputmode="numeric" value="${logged ? logged.o : ''}" placeholder="${prevLog ? prevLog.o : '—'}"></label>
+          <button class="btn btn-primary" data-act="logq">Log ${qLabel(cur.q)}</button>
+        </div>
+        ${suggHtml()}
+      </div>
+      <div class="w-foot">
+        <button class="btn btn-ghost" data-act="undo">↩ Undo last tap <kbd style="opacity:.6">Z</kbd></button>
+        <div class="w-help">1–4 celebrate · 5–8 vent · U / C / D toggle · [ ] quarter · Z undo · Esc close</div>
+      </div>
+    </div>`;
+    updateCounts(); paintMood();
+  }
+  function updateCounts(){
+    if(!isOpen()) return;
+    const t = totals(cur.gid);
+    el.querySelectorAll('[data-count]').forEach(n=>{ n.textContent = t.byKey[n.dataset.count] || ''; });
+    const qs = el.querySelector('#wQs'); if(qs) qs.innerHTML = qChipsHtml(t);
+  }
+
+  /* ---- open / close ---- */
+  function open(gid){
+    const g = games.find(x=>x.id === gid); if(!g) return;
+    cur.gid = gid; cur.hist = []; cur.sugg = null; cur.mood = 0; cur.t = Date.now();
+    const l = live[gid];
+    if(l){ cur.mode = l.mode; cur.q = l.q; }
+    else { cur.mode = 'close'; const nxt = ['1','2','3','4'].find(q=>!(g.quarters && g.quarters[q])); cur.q = nxt || '4'; }
+    el.classList.add('open'); document.body.style.overflow = 'hidden';
+    render(); clearInterval(timer); timer = setInterval(paintMood, 100);
+  }
+  function close(){
+    el.classList.remove('open'); document.body.style.overflow = ''; clearInterval(timer); el.innerHTML = '';
+    renderAll();
+  }
+  function refresh(){      // called after a sync pull brought changes
+    if(!isOpen()) return;
+    const l = live[cur.gid], busy = document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+    if(l && (l.mode !== cur.mode || l.q !== cur.q) && !busy){ cur.mode = l.mode; cur.q = l.q; render(); }
+    else updateCounts();
+  }
+
+  /* ---- events ---- */
+  el.addEventListener('click', e=>{
+    const t = e.target.closest('[data-tap],[data-mode],[data-q],[data-act]'); if(!t) return;
+    if(t.dataset.tap) tap(t.dataset.tap, t);
+    else if(t.dataset.mode) setMode(t.dataset.mode);
+    else if(t.dataset.q) setQ(t.dataset.q);
+    else {
+      const a = t.dataset.act;
+      if(a === 'close') close(); else if(a === 'undo') undo(); else if(a === 'logq') logQuarter();
+      else if(a === 'applysugg'){ setMode(cur.sugg.mode); }
+      else if(a === 'dismiss'){ cur.sugg = null; render(); }
+      else if(a === 'final') saveFinal();
+    }
+    if(t.blur) t.blur();
+  });
+  document.addEventListener('keydown', e=>{
+    if(!isOpen() || e.metaKey || e.ctrlKey || e.altKey) return;
+    const tg = e.target;
+    if(tg && /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName)){
+      if(e.key === 'Enter'){ e.preventDefault(); logQuarter(); } else if(e.key === 'Escape') tg.blur();
+      return;
+    }
+    if(e.key === 'Escape'){ close(); return; }
+    if(e.repeat) return;
+    if(/^[1-8]$/.test(e.key)){ e.preventDefault(); tap(BTN[+e.key - 1].k); return; }
+    const k = e.key.toLowerCase();
+    if(k === 'u') setMode('up'); else if(k === 'c') setMode('close'); else if(k === 'd') setMode('down');
+    else if(e.key === '[') stepQ(-1); else if(e.key === ']') stepQ(1);
+    else if(k === 'z' || e.key === 'Backspace'){ e.preventDefault(); undo(); }
+  });
+
+  /* ---- Today card chip, game-detail section, season stats ---- */
+  function chipHtml(gid){
+    const t = totals(gid); if(!t.total) return '';
+    return `<div class="watch-chip"><span>🙌 ${t.up}</span><span>😤 ${t.down}</span></div>`;
+  }
+  function sheetHtml(gid){
+    const g = games.find(x=>x.id === gid), t = totals(gid), qs = (g && g.quarters) || {};
+    if(!t.total && !Object.keys(qs).length) return '';
+    const chips = BTN.filter(b=>t.byKey[b.k]).sort((a,b)=>t.byKey[b.k] - t.byKey[a.k]).map(b=>`<span>${b.e} ${b.l} ×${t.byKey[b.k]}</span>`).join('');
+    const rows = QS.filter(q=>t.byQ[q] || qs[q]).map(q=>{
+      const bq = t.byQ[q] || {up:0, down:0}, sc = qs[q] ? ` · ${qs[q].k}–${qs[q].o}` : '';
+      return `<div class="fp-line"><b>${qLabel(q)}</b> · ▲${bq.up} ▼${bq.down}${sc}</div>`;
+    }).join('');
+    const pk = peak(t, 'down'), pu = peak(t, 'up');
+    const pkTxt = (pk ? `<div class="fp-line">Roughest stretch: <b>${qLabel(pk.q)} · ${pk.b.e} ${pk.b.l} ×${pk.n}</b></div>` : '')
+                + (pu ? `<div class="fp-line">Best stretch: <b>${qLabel(pu.q)} · ${pu.b.e} ${pu.b.l} ×${pu.n}</b></div>` : '');
+    return `<div class="field"><label>Fan Pulse · 🙌 ${t.up} hype · 😤 ${t.down} rage</label>
+      <div class="fp-chips">${chips}</div>${pkTxt}${rows}</div>`;
+  }
+  function renderStats(){
+    const box = document.getElementById('fanPulse'); if(!box) return;
+    const rows = games.map(g=>({g, t:totals(g.id), res:getResult(g)})).filter(r=>r.t.total > 0);
+    if(!rows.length){
+      box.innerHTML = `<div class="empty-state" style="grid-column:1/-1; padding:16px;">Open Watch Mode on game day to start tracking hype and rage.</div>`; return;
+    }
+    const sum = (arr, f)=> arr.reduce((s, r)=> s + f(r), 0);
+    const up = sum(rows, r=>r.t.up), down = sum(rows, r=>r.t.down);
+    const L = rows.filter(r=>r.g.played && r.res === 'L'), W = rows.filter(r=>r.g.played && r.res === 'W');
+    const avg = (arr, f)=> arr.length ? (sum(arr, f) / arr.length).toFixed(1) : '—';
+    const stress = rows.reduce((a, r)=> r.t.down > a.t.down ? r : a, rows[0]);
+    const joy = rows.reduce((a, r)=> r.t.up > a.t.up ? r : a, rows[0]);
+    const qDown = {}; rows.forEach(r=> Object.entries(r.t.byQ).forEach(([q, bq])=>{ qDown[q] = (qDown[q]||0) + bq.down; }));
+    const worstQ = Object.entries(qDown).sort((a,b)=>b[1] - a[1])[0];
+    const keyDown = BTN.filter(b=>b.side === 'down').map(b=>({b, n: sum(rows, r=>r.t.byKey[b.k]||0)})).sort((a,b)=>b.n - a.n)[0];
+    const card = (lbl, val, sub, cls='')=>`<div class="stat-card"><div class="lbl">${lbl}</div><div class="val ${cls}">${val}</div><div class="sub">${sub}</div></div>`;
+    const gl = r=>`${r.g.home ? 'vs' : '@'} ${teamName(r.g.opp)} · ${fmtGameDate(r.g).full}`;
+    box.innerHTML =
+      card('Hype / Rage taps', `${up} / ${down}`, `${rows.length} game${rows.length === 1 ? '' : 's'} watched`) +
+      card('Rage taps per loss', avg(L, r=>r.t.down), `${L.length} loss${L.length === 1 ? '' : 'es'} tracked`, 'neg') +
+      card('Rage taps per win', avg(W, r=>r.t.down), `${W.length} win${W.length === 1 ? '' : 's'} tracked`) +
+      card('Hype taps per win', avg(W, r=>r.t.up), 'celebration energy', 'pos') +
+      card('Most stressful game', stress.t.down, gl(stress), 'neg') +
+      card('Most joyful game', joy.t.up, gl(joy), 'pos') +
+      card('Worst quarter', worstQ && worstQ[1] ? qLabel(worstQ[0]) : '—', worstQ && worstQ[1] ? `${worstQ[1]} rage taps all season` : 'no rage yet') +
+      card('Go-to groan', keyDown && keyDown.n ? keyDown.b.e : '—', keyDown && keyDown.n ? `${keyDown.b.l} ×${keyDown.n}` : 'none yet');
+  }
+
+  return {open, close, refresh, isOpen, persist, applyTaps, applyLive, queueAllOwn, chipHtml, sheetHtml, renderStats};
+})();
+
 /* ---------------- Init ---------------- */
 (async function init(){
   await loadPredictions();
   await loadGames();
+  Sync.beforeRender();
   renderAll();
+  Sync.start();
 })();
 
 if('serviceWorker' in navigator){

@@ -1,4 +1,4 @@
-const CACHE = 'knicks-2627-v10';
+const CACHE = 'knicks-2627-v11';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -16,6 +16,9 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   // network-first for logos/CDN, cache-first for app shell
   if (e.request.method !== 'GET') return;
+  // sync API calls (Cloudflare Worker) must always hit the network, never the cache
+  const reqUrl = new URL(e.request.url);
+  if (reqUrl.pathname === '/pull' || reqUrl.pathname === '/push') return;
   // the app page itself: network-first so a new deploy shows up on the next open
   if (e.request.mode === 'navigate') {
     e.respondWith(
