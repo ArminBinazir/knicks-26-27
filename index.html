@@ -289,6 +289,50 @@
   .sheet{position:relative;}
 
   .loading{text-align:center; padding:40px; color:var(--silver);}
+
+  /* ---------------- Desktop layout (>= 900px) ---------------- */
+  @media (min-width: 900px){
+    body{ padding-bottom:80px; }
+    .hero, .tabs, .section{ max-width:1120px; margin-left:auto; margin-right:auto; }
+    .hero{ padding:32px 32px 26px; border-radius:0 0 22px 22px; border:1px solid var(--line); border-top:none; }
+    .hero-top .brand img{ width:56px; height:56px; }
+    .brand-text h1{ font-size:26px; }
+    .record-strip{ max-width:640px; }
+    .tabs{ padding:0 32px; margin-top:18px; gap:8px; }
+    .tab-btn{ font-size:13.5px; padding:10px 20px; }
+    .section{ padding:26px 32px; }
+
+    /* Home: two columns */
+    #pane-home.active{
+      display:grid; grid-template-columns:1fr 1fr; column-gap:36px; align-items:start;
+      grid-template-areas:"today today" "next snap" "last snap";
+    }
+    #pane-home #todayGameSection{ grid-area:today; }
+    .home-next{ grid-area:next; } .home-snap{ grid-area:snap; } .home-last{ grid-area:last; }
+    .home-next .section-title, .home-snap .section-title{ margin-top:0 !important; }
+    #pane-home #snapshotGrid{ grid-template-columns:repeat(2,1fr); }
+    .col{ min-width:0; }
+
+    /* Schedule: two-column list, months span full width */
+    #scheduleList{ display:grid; grid-template-columns:1fr 1fr; column-gap:16px; }
+    #scheduleList .month-label{ grid-column:1 / -1; }
+
+    /* Stats / opponents / predict */
+    #pane-stats .stat-grid{ grid-template-columns:repeat(2,1fr); }
+    #pane-stats.active{ display:grid; grid-template-columns:1fr 1fr; column-gap:36px; align-items:start; }
+    #opponentList{ display:grid; grid-template-columns:1fr 1fr; column-gap:32px; }
+    #pane-predict.active{ display:grid; grid-template-columns:1fr 1fr; column-gap:36px; align-items:start; }
+    .predict-top{ grid-column:1 / -1; }
+    #predictSummary .stat-grid{ grid-template-columns:repeat(4,1fr); }
+
+    /* Add button + modal feel like desktop, not a phone sheet */
+    .fab{ right:max(32px, calc((100vw - 1120px)/2 + 32px)); bottom:32px; }
+    .overlay{ align-items:center; }
+    .sheet{ border-radius:20px; max-width:520px; border:1px solid rgba(46,123,214,0.5); }
+    .game-row:hover, .pick-row:hover{ border-color:rgba(244,123,32,0.5); }
+    .tab-btn:hover{ border-color:var(--knicks-orange); }
+  }
+
   ::selection{background:var(--knicks-orange); color:var(--court-navy);}
 
   /* Predict tab */
@@ -363,14 +407,18 @@
       <div id="todayGameCard" style="margin-bottom:22px;"></div>
     </div>
 
-    <div class="section-title"><span class="num-tag">01</span><h2>Next Game</h2></div>
-    <div id="nextGameCard"></div>
-
-    <div class="section-title" style="margin-top:22px;"><span class="num-tag">02</span><h2>Season Snapshot</h2></div>
-    <div class="stat-grid" id="snapshotGrid"></div>
-
-    <div class="section-title" style="margin-top:22px;"><span class="num-tag">03</span><h2>Last 5</h2></div>
-    <div id="last5Row" style="display:flex; gap:8px;"></div>
+    <div class="home-next">
+      <div class="section-title"><span class="num-tag">01</span><h2>Next Game</h2></div>
+      <div id="nextGameCard"></div>
+    </div>
+    <div class="home-snap">
+      <div class="section-title" style="margin-top:22px;"><span class="num-tag">02</span><h2>Season Snapshot</h2></div>
+      <div class="stat-grid" id="snapshotGrid"></div>
+    </div>
+    <div class="home-last">
+      <div class="section-title" style="margin-top:22px;"><span class="num-tag">03</span><h2>Last 5</h2></div>
+      <div id="last5Row" style="display:flex; gap:8px;"></div>
+    </div>
   </div>
 
   <div id="pane-schedule" class="tabpane">
@@ -378,17 +426,20 @@
   </div>
 
   <div id="pane-stats" class="tabpane">
-    <div class="section-title"><span class="num-tag">·</span><h2>Home vs Road</h2></div>
-    <div id="homeRoadBars"></div>
+    <div class="col">
+      <div class="section-title"><span class="num-tag">·</span><h2>Home vs Road</h2></div>
+      <div id="homeRoadBars"></div>
 
-    <div class="section-title" style="margin-top:20px;"><span class="num-tag">·</span><h2>Point Differential</h2></div>
-    <div class="stat-grid" id="diffGrid"></div>
+      <div class="section-title" style="margin-top:20px;"><span class="num-tag">·</span><h2>Monthly Record</h2></div>
+      <div id="monthlyBars"></div>
+    </div>
+    <div class="col">
+      <div class="section-title"><span class="num-tag">·</span><h2>Point Differential</h2></div>
+      <div class="stat-grid" id="diffGrid"></div>
 
-    <div class="section-title" style="margin-top:20px;"><span class="num-tag">·</span><h2>Monthly Record</h2></div>
-    <div id="monthlyBars"></div>
-
-    <div class="section-title" style="margin-top:20px;"><span class="num-tag">·</span><h2>Streaks</h2></div>
-    <div class="stat-grid" id="streakGrid"></div>
+      <div class="section-title" style="margin-top:20px;"><span class="num-tag">·</span><h2>Streaks</h2></div>
+      <div class="stat-grid" id="streakGrid"></div>
+    </div>
   </div>
 
   <div id="pane-opponents" class="tabpane">
@@ -397,14 +448,18 @@
   </div>
 
   <div id="pane-predict" class="tabpane">
-    <div class="section-title"><span class="num-tag">🔮</span><h2>Your Prediction Record</h2></div>
-    <div id="predictSummary"></div>
-
-    <div class="section-title" style="margin-top:22px;"><span class="num-tag">·</span><h2>Make Your Picks</h2></div>
-    <div id="predictUpcoming"></div>
-
-    <div class="section-title" style="margin-top:22px;"><span class="num-tag">·</span><h2>Pick History</h2></div>
-    <div id="predictHistory"></div>
+    <div class="predict-top">
+      <div class="section-title"><span class="num-tag">🔮</span><h2>Your Prediction Record</h2></div>
+      <div id="predictSummary"></div>
+    </div>
+    <div class="col">
+      <div class="section-title" style="margin-top:22px;"><span class="num-tag">·</span><h2>Make Your Picks</h2></div>
+      <div id="predictUpcoming"></div>
+    </div>
+    <div class="col">
+      <div class="section-title" style="margin-top:22px;"><span class="num-tag">·</span><h2>Pick History</h2></div>
+      <div id="predictHistory"></div>
+    </div>
   </div>
 
 </div>
@@ -702,7 +757,10 @@ function playedGames(){
 }
 function nextGame(){
   const t = todayISO();
-  return sortedGames().find(g => !g.played && fmtGameDate(g).isoDate >= t) || sortedGames().find(g=>!g.played);
+  const tg = todayGame();
+  // today's game (if any) has its own card, so "next" is the first unplayed game after it
+  const upcoming = sortedGames().filter(g => !g.played && fmtGameDate(g).isoDate >= t && !(tg && g.id === tg.id));
+  return upcoming[0] || sortedGames().find(g => !g.played && !(tg && g.id === tg.id));
 }
 function todayGame(){
   const t = todayISO();
@@ -846,12 +904,6 @@ function renderTodayGame(){
 function renderNextGame(){
   const g = nextGame();
   const el = document.getElementById('nextGameCard');
-  const tg = todayGame();
-  if(g && tg && g.id === tg.id && !tg.played){
-    // already shown in Today's Game section above; skip duplicate
-    el.innerHTML = '';
-    return;
-  }
   if(!g){
     el.innerHTML = `<div class="next-card"><div class="no-next">Season complete — no games remaining.</div></div>`;
     return;
