@@ -460,6 +460,36 @@
   .w-float{position:fixed; pointer-events:none; font-size:28px; z-index:300; animation:wfloat .7s ease-out forwards;}
   @keyframes wfloat{ to{ transform:translateY(-70px); opacity:0; } }
   @media (prefers-reduced-motion: reduce){ .w-float{display:none;} }
+
+  /* ============ Tappable cards (home) ============ */
+  .tappable{cursor:pointer; position:relative; transition:transform .12s ease, border-color .15s ease, background .15s ease;
+    -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none;}
+  @media (hover:hover){ .tappable:hover{border-color:rgba(244,123,32,.55);} .stat-card.tappable:hover{background:rgba(255,255,255,.07);} }
+  .tappable:active{transform:scale(.975);}
+  .tappable:focus-visible{outline:2px solid var(--knicks-orange); outline-offset:2px;}
+  .stat-card.tappable::after{content:'›'; position:absolute; top:7px; right:12px; color:var(--silver); font-size:18px; line-height:1; opacity:.75;}
+  .stat-card .val{font-variant-numeric:tabular-nums;}
+  .next-cta{margin-top:10px; padding-top:10px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:center;
+    font-size:12px; font-weight:700; letter-spacing:.4px; color:var(--knicks-orange-2);}
+  .next-cta span{font-size:18px; line-height:1;}
+  .tap-hint{font-size:11px; color:var(--silver); opacity:.8; margin:-4px 0 10px 2px;}
+
+  /* ============ Snapshot detail sheet ============ */
+  .snap-sub{font-size:12px; color:var(--silver); margin:-6px 0 12px;}
+  .snap-row{display:flex; justify-content:space-between; align-items:baseline; padding:11px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .snap-row span{color:var(--silver);} .snap-row b{font-variant-numeric:tabular-nums; font-weight:700;}
+  .snap-h{font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--silver); font-weight:700; margin:16px 0 6px;}
+  .snap-log{max-height:280px; overflow-y:auto; -webkit-overflow-scrolling:touch; margin:0 -4px;}
+  .snap-g{display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:10px; border:1px solid transparent;}
+  .snap-g img{width:26px; height:26px; object-fit:contain; flex:none;}
+  .snap-gt{flex:1; min-width:0; display:flex; flex-direction:column;}
+  .snap-gt b{font-size:13px; font-weight:700;} .snap-gt span{font-size:11px; color:var(--silver);}
+  .snap-gr{font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:.5px; flex:none;}
+  .snap-chips{display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;}
+  .snap-chip{width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font:700 13px 'Archivo',sans-serif;}
+  .snap-chip.w{background:rgba(63,178,127,.18); color:var(--win); border:1px solid rgba(63,178,127,.45);}
+  .snap-chip.l{background:rgba(224,90,90,.16); color:var(--loss); border:1px solid rgba(224,90,90,.45);}
+  .snap-note{font-size:12px; color:var(--silver); margin-top:12px; line-height:1.5;}
 </style>
 </head>
 <body>
@@ -501,6 +531,7 @@
     </div>
     <div class="home-snap">
       <div class="section-title" style="margin-top:22px;"><span class="num-tag">02</span><h2>Season Snapshot</h2></div>
+      <div class="tap-hint">Tap a card for details</div>
       <div class="stat-grid" id="snapshotGrid"></div>
     </div>
     <div class="home-last">
@@ -994,7 +1025,7 @@ function renderTodayGame(){
       <button class="watch-btn" type="button" data-watch="${g.id}">🔴 Watch Mode</button>
     `;
   }
-  el.innerHTML = `<div class="next-card today-card" data-id="${g.id}" style="cursor:pointer;">${bodyHtml}${g.note ? `<div class="next-meta" style="border-top:none; padding-top:4px;"><span>${g.note}</span></div>` : ''}${Watch.chipHtml(g.id)}</div>`;
+  el.innerHTML = `<div class="next-card today-card tappable" data-id="${g.id}" style="cursor:pointer;">${bodyHtml}${g.note ? `<div class="next-meta" style="border-top:none; padding-top:4px;"><span>${g.note}</span></div>` : ''}${Watch.chipHtml(g.id)}</div>`;
   el.querySelector('.today-card').addEventListener('click', ()=> openGameSheet(g.id));
   const wb = el.querySelector('.watch-btn');
   if(wb) wb.addEventListener('click', e=>{ e.stopPropagation(); Watch.open(g.id); });
@@ -1020,7 +1051,7 @@ function renderNextGame(){
   const awayTeam = g.home ? {abbr:g.opp, name:teamName(g.opp)} : {abbr:'ny', name:'Knicks'};
 
   el.innerHTML = `
-    <div class="next-card">
+    <div class="next-card tappable" data-gid="${g.id}" role="button" tabindex="0" aria-label="Open game details">
       <div class="matchup">
         <div class="team-block"><img src="${logoUrl(awayTeam.abbr)}"><span>${awayTeam.name}</span></div>
         <div class="vs-mid">
@@ -1034,6 +1065,7 @@ function renderNextGame(){
         <b>${g.home?'Home · MSG':'Away'}</b>
       </div>
       ${g.note ? `<div class="next-meta" style="border-top:none; padding-top:4px;"><span>${g.note}</span></div>` : ''}
+      <div class="next-cta">Game details <span>›</span></div>
     </div>
   `;
 }
@@ -1043,10 +1075,10 @@ function renderSnapshot(){
   const s = computeStats();
   const el = document.getElementById('snapshotGrid');
   el.innerHTML = `
-    <div class="stat-card"><div class="lbl">Record</div><div class="val">${s.wins}-${s.losses}</div><div class="sub">${s.played} games played</div></div>
-    <div class="stat-card"><div class="lbl">Win %</div><div class="val">${s.winPct.toFixed(1)}%</div><div class="sub">${s.gamesLeft} games left</div></div>
-    <div class="stat-card"><div class="lbl">Avg Margin</div><div class="val ${s.avgDiff>=0?'pos':'neg'}">${s.avgDiff>=0?'+':''}${s.avgDiff.toFixed(1)}</div><div class="sub">per game</div></div>
-    <div class="stat-card"><div class="lbl">Streak</div><div class="val ${s.streakType==='W'?'pos':(s.streakType==='L'?'neg':'')}">${s.streakType?s.streakType+s.streak:'—'}</div><div class="sub">current</div></div>
+    <div class="stat-card tappable" data-snap="record" role="button" tabindex="0"><div class="lbl">Record</div><div class="val">${s.wins}-${s.losses}</div><div class="sub">${s.played} games played</div></div>
+    <div class="stat-card tappable" data-snap="winpct" role="button" tabindex="0"><div class="lbl">Win %</div><div class="val">${s.winPct.toFixed(1)}%</div><div class="sub">${s.gamesLeft} games left</div></div>
+    <div class="stat-card tappable" data-snap="margin" role="button" tabindex="0"><div class="lbl">Avg Margin</div><div class="val ${s.avgDiff>=0?'pos':'neg'}">${s.avgDiff>=0?'+':''}${s.avgDiff.toFixed(1)}</div><div class="sub">per game</div></div>
+    <div class="stat-card tappable" data-snap="streak" role="button" tabindex="0"><div class="lbl">Streak</div><div class="val ${s.streakType==='W'?'pos':(s.streakType==='L'?'neg':'')}">${s.streakType?s.streakType+s.streak:'—'}</div><div class="sub">current</div></div>
   `;
   const l5 = document.getElementById('last5Row');
   if(!s.last5.length){
@@ -1057,7 +1089,7 @@ function renderSnapshot(){
     const w = getResult(g)==='W';
     const scoreLine = hasScores(g) ? `${g.knicksScore}-${g.oppScore}` : (w?'Win':'Loss');
     const moodEmoji = g.mood ? (moodFor(g.mood)?.emoji||'') : '';
-    return `<div style="flex:1; text-align:center; background:rgba(255,255,255,0.04); border:1px solid var(--line); border-radius:10px; padding:10px 4px;">
+    return `<div class="tappable" data-gid="${g.id}" role="button" tabindex="0" style="flex:1; text-align:center; background:rgba(255,255,255,0.04); border:1px solid var(--line); border-radius:10px; padding:10px 4px;">
       <img src="${logoUrl(g.opp)}" style="width:24px;height:24px;object-fit:contain;">
       <div style="font-family:'Bebas Neue'; font-size:15px; margin-top:4px; color:${w?'var(--win)':'var(--loss)'}">${w?'W':'L'} ${moodEmoji}</div>
       <div style="font-size:10px; color:var(--silver);">${scoreLine}</div>
@@ -1701,18 +1733,24 @@ const Sync = (function(){
     const lastTs = lsRead(K.last, 0);
     sheetEl.innerHTML = `
       <button class="close-x" id="syClose">✕</button>
-      <h3>Sync across devices</h3>
+      <h3>Sync &amp; backup</h3>
       <div class="field"><label>Worker URL</label><input id="syUrl" type="url" autocapitalize="off" autocorrect="off" value="${(cfg && cfg.url) || DEFAULT_URL}" placeholder="https://knicks-sync.yourname.workers.dev"></div>
       <div class="field"><label>Sync key</label><input id="syKey" type="password" autocapitalize="off" autocorrect="off" value="${(cfg && cfg.key) || ''}" placeholder="the SYNC_KEY you set on the Worker"></div>
       <div class="sync-info" id="syInfo">
         ${enabled() ? 'Status: <b>'+status+'</b>' + (lastErr ? ' ('+lastErr+')' : '') + ' · pending changes: <b>'+pending()+'</b><br>Last sync: '+(lastTs ? new Date(lastTs).toLocaleTimeString() : 'never')+'<br>' : 'Not connected — this device only stores data locally.<br>'}
         Device id: ${deviceId}
       </div>
+      <div class="field"><label>Backup</label>
+        <div class="sheet-actions" style="flex-wrap:wrap;"><button class="btn btn-ghost" id="bkExport" type="button">⬇ Export backup</button><button class="btn btn-ghost" id="bkImport" type="button">⬆ Restore backup</button></div>
+        <input type="file" id="bkFile" accept="application/json,.json" hidden>
+        <div class="sync-info" id="bkMsg" style="margin:8px 0 0;"></div>
+      </div>
       <div class="sheet-actions" style="flex-wrap:wrap;">
         ${enabled() ? '<button class="btn btn-danger" id="syOff">Disconnect</button><button class="btn btn-ghost" id="syLink">Copy setup link</button>' : ''}
         <button class="btn btn-primary" id="syGo">${enabled() ? 'Save & sync now' : 'Connect'}</button>
       </div>`;
     document.getElementById('syClose').addEventListener('click', closeSheet);
+    Backup.wire();
     document.getElementById('syGo').addEventListener('click', async ()=>{
       const url = document.getElementById('syUrl').value.trim(), key = document.getElementById('syKey').value.trim();
       if(!url || !key){ document.getElementById('syInfo').textContent = 'Enter both the Worker URL and the sync key.'; return; }
@@ -2063,7 +2101,151 @@ const Watch = (function(){
       card('Go-to groan', keyDown && keyDown.n ? keyDown.b.e : '—', keyDown && keyDown.n ? `${keyDown.b.l} ×${keyDown.n}` : 'none yet');
   }
 
-  return {open, close, refresh, isOpen, persist, applyTaps, applyLive, queueAllOwn, chipHtml, sheetHtml, renderStats};
+  function exportData(){ return {taps, live}; }
+  function importData(d){
+    Object.entries(d.taps || {}).forEach(([gid, devs])=> Object.entries(devs || {}).forEach(([dev, r])=>{
+      taps[gid] = taps[gid] || {};
+      const u = Sync.stamp(Math.max(r.u || 0, (taps[gid][dev] && taps[gid][dev].u) || 0));
+      taps[gid][dev] = {q: r.q || {}, u};
+      Sync.queue('taps:'+gid+':'+dev, {q: r.q || {}}, u);
+    }));
+    Object.entries(d.live || {}).forEach(([gid, l])=>{ const u = Sync.stamp((live[gid] && live[gid].u) || l.u || 0); live[gid] = {mode:l.mode, q:l.q, u}; Sync.queue('live:'+gid, {mode:l.mode, q:l.q}, u); });
+    persist();
+  }
+  return {open, close, refresh, isOpen, persist, applyTaps, applyLive, queueAllOwn, chipHtml, sheetHtml, renderStats, exportData, importData};
+})();
+
+/* ================= Home: tappable cards + snapshot detail sheets ================= */
+function goTab(name){
+  const btn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
+  if(btn) btn.click();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+const Snap = (function(){
+  const row = (l, v, c='') => `<div class="snap-row"><span>${l}</span><b class="${c}">${v}</b></div>`;
+  const pct = (w, l) => (w + l) ? (w / (w + l) * 100).toFixed(1) + '%' : '—';
+  const rec = list => { const w = list.filter(g=>getResult(g) === 'W').length; return {w, l:list.length - w}; };
+  function longest(pg){
+    let bw = 0, bl = 0, cw = 0, cl = 0;
+    pg.forEach(g=>{ if(getResult(g) === 'W'){ cw++; cl = 0; bw = Math.max(bw, cw); } else { cl++; cw = 0; bl = Math.max(bl, cl); } });
+    return {bw, bl};
+  }
+  function gameRows(list){
+    return list.map(g=>{
+      const w = getResult(g) === 'W', sc = hasScores(g) ? `${g.knicksScore}–${g.oppScore}` : (w ? 'Win' : 'Loss');
+      return `<div class="snap-g tappable" data-gid="${g.id}" role="button" tabindex="0"><img src="${logoUrl(g.opp)}" alt="">
+        <div class="snap-gt"><b>${g.home ? 'vs' : '@'} ${teamName(g.opp)}</b><span>${fmtGameDate(g).full}</span></div>
+        <div class="snap-gr ${w ? 'pos' : 'neg'}">${w ? 'W' : 'L'} ${sc}</div></div>`;
+    }).join('');
+  }
+  function open(kind){
+    const s = computeStats(), pg = playedGames(), l10 = pg.slice(-10), r10 = rec(l10), total = 82;   // regular-season length
+    const homeG = pg.filter(g=>g.home), roadG = pg.filter(g=>!g.home);
+    const scored = pg.filter(hasScores);
+    let title = '', sub = '', body = '';
+    if(kind === 'record'){
+      title = 'Record'; sub = `${s.played} played · ${s.gamesLeft} to go`;
+      body = row('Overall', `${s.wins}–${s.losses}`) + row('Home', `${s.homeW}–${s.homeL}`) + row('Road', `${s.roadW}–${s.roadL}`) +
+             row('Last 10', l10.length ? `${r10.w}–${r10.l}` : '—') +
+             `<div class="snap-h">Game log · tap a game to open it</div>` +
+             (pg.length ? `<div class="snap-log">${gameRows(pg.slice().reverse())}</div>` : `<div class="empty-state" style="padding:16px;">No games logged yet.</div>`);
+    } else if(kind === 'winpct'){
+      title = 'Win %'; sub = `${s.wins} wins in ${s.played} games`;
+      const projW = s.played ? Math.round(s.winPct / 100 * total) : null;
+      body = row('Overall', s.played ? s.winPct.toFixed(1) + '%' : '—') + row('Home', pct(s.homeW, s.homeL)) + row('Road', pct(s.roadW, s.roadL)) +
+             row('Last 10', l10.length ? pct(r10.w, r10.l) : '—') +
+             row(`Pace over ${total} games`, projW === null ? '—' : `${projW}–${total - projW}`) +
+             `<div class="snap-note">Pace is a straight-line projection from the current win %. It changes every game.</div>`;
+    } else if(kind === 'margin'){
+      title = 'Average Margin'; sub = scored.length ? `Based on ${scored.length} game${scored.length === 1 ? '' : 's'} with scores` : 'No scores logged yet';
+      body = row('Avg margin', scored.length ? (s.avgDiff >= 0 ? '+' : '') + s.avgDiff.toFixed(1) : '—', s.avgDiff >= 0 ? 'pos' : 'neg') +
+             row('Points for / game', scored.length ? (s.pf / scored.length).toFixed(1) : '—') +
+             row('Points against / game', scored.length ? (s.pa / scored.length).toFixed(1) : '—') +
+             row('Best win', s.bestWin ? `+${s.bestWin.margin} vs ${teamName(s.bestWin.g.opp)}` : '—', s.bestWin ? 'pos' : '') +
+             row('Worst loss', s.worstLoss ? `${s.worstLoss.margin} vs ${teamName(s.worstLoss.g.opp)}` : '—', s.worstLoss ? 'neg' : '') +
+             (scored.length < s.played ? `<div class="snap-note">${s.played - scored.length} played game${s.played - scored.length === 1 ? ' has' : 's have'} no score entered, so ${s.played - scored.length === 1 ? 'it is' : 'they are'} left out of these numbers.</div>` : '');
+    } else {
+      const lg = longest(pg);
+      title = 'Streak'; sub = s.streakType ? `Currently ${s.streakType === 'W' ? 'winning' : 'losing'} ${s.streak} in a row` : 'No games logged yet';
+      body = row('Current', s.streakType ? s.streakType + s.streak : '—', s.streakType === 'W' ? 'pos' : (s.streakType === 'L' ? 'neg' : '')) +
+             row('Longest win streak', lg.bw ? 'W' + lg.bw : '—', lg.bw ? 'pos' : '') + row('Longest losing streak', lg.bl ? 'L' + lg.bl : '—', lg.bl ? 'neg' : '') +
+             `<div class="snap-h">Last 10 (oldest → newest)</div><div class="snap-chips">${l10.length ? l10.map(g=>{ const w = getResult(g) === 'W'; return `<span class="snap-chip ${w ? 'w' : 'l'}">${w ? 'W' : 'L'}</span>`; }).join('') : '<span style="color:var(--silver);font-size:13px;">Nothing yet</span>'}</div>`;
+    }
+    sheetEl.innerHTML = `<button class="close-x" id="snClose">✕</button><h3>${title}</h3><div class="snap-sub">${sub}</div>${body}
+      <div class="sheet-actions" style="margin-top:16px;"><button class="btn btn-ghost" id="snStats">View full stats ›</button><button class="btn btn-primary" id="snDone">Done</button></div>`;
+    sheetEl.querySelector('#snClose').addEventListener('click', closeSheet);
+    sheetEl.querySelector('#snDone').addEventListener('click', closeSheet);
+    sheetEl.querySelector('#snStats').addEventListener('click', ()=>{ closeSheet(); goTab('stats'); });
+    sheetEl.querySelectorAll('.snap-g').forEach(n=> n.addEventListener('click', ()=> openGameSheet(n.dataset.gid)));
+    overlay.classList.add('open');
+  }
+  return {open};
+})();
+
+(function wireHome(){
+  document.getElementById('snapshotGrid').addEventListener('click', e=>{
+    const c = e.target.closest('[data-snap]'); if(c) Snap.open(c.dataset.snap);
+  });
+  document.getElementById('last5Row').addEventListener('click', e=>{
+    const c = e.target.closest('[data-gid]'); if(c) openGameSheet(c.dataset.gid);
+  });
+  document.getElementById('nextGameCard').addEventListener('click', e=>{
+    const c = e.target.closest('[data-gid]'); if(c) openGameSheet(c.dataset.gid);
+  });
+  // keyboard: Enter / Space activates any tappable card
+  document.addEventListener('keydown', e=>{
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    const t = e.target && e.target.closest && e.target.closest('.tappable[role="button"]');
+    if(t && !/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(e.target.tagName)){ e.preventDefault(); t.click(); }
+  });
+})();
+
+/* ================= Backup: export / restore ================= */
+const Backup = (function(){
+  const LAST = 'knicks-last-backup';
+  const msg = (t, bad) => { const m = document.getElementById('bkMsg'); if(m){ m.textContent = t; m.style.color = bad ? 'var(--loss)' : 'var(--silver)'; } };
+  function build(){
+    return {app:'knicks-2627', version:1, exportedAt:new Date().toISOString(), games, predictions, fan:Watch.exportData()};
+  }
+  async function exportFile(){
+    const blob = new Blob([JSON.stringify(build(), null, 2)], {type:'application/json'});
+    const name = `knicks-backup-${todayISO()}.json`;
+    const file = new File([blob], name, {type:'application/json'});
+    if(window.matchMedia && window.matchMedia('(pointer:coarse)').matches && navigator.canShare && navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file], title:'Knicks backup'}); lsWrite(LAST, Date.now()); msg('Backup shared. Save it to Files or iCloud Drive.'); return; }
+      catch(e){ if(e.name === 'AbortError') return; }
+    }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+    lsWrite(LAST, Date.now()); msg('Backup downloaded: ' + name);
+  }
+  async function restore(file){
+    let data;
+    try{ data = JSON.parse(await file.text()); }catch(e){ msg('That file is not a valid backup.', true); return; }
+    if(!data || data.app !== 'knicks-2627' || !Array.isArray(data.games)){ msg('That file is not a Knicks backup.', true); return; }
+    const incoming = data.games.filter(g=>g && g.id && g.opp && g.date);
+    const when = data.exportedAt ? new Date(data.exportedAt).toLocaleString() : 'unknown date';
+    if(!confirm(`Restore backup from ${when}?\n\nIt merges into this device: ${incoming.length} games from the backup replace the matching ones here. Nothing else is deleted.`)) return;
+    incoming.forEach(g=>{
+      const i = games.findIndex(x=>x.id === g.id);
+      if(i >= 0){ Object.keys(games[i]).forEach(k=> delete games[i][k]); Object.assign(games[i], g); } else games.push(g);
+      Sync.touchGame(i >= 0 ? games[i] : games[games.length-1]);
+    });
+    Object.entries(data.predictions || {}).forEach(([id, v])=>{ predictions[id] = v; Sync.touchPred(id); });
+    Watch.importData(data.fan || {});
+    await saveGames(); await savePredictions(); Watch.persist();
+    renderAll(); msg(`Restored ${incoming.length} games.`);
+  }
+  function wire(){
+    const last = lsRead(LAST, 0);
+    msg(last ? 'Last backup: ' + new Date(last).toLocaleString() : 'No backup made yet.');
+    document.getElementById('bkExport').addEventListener('click', exportFile);
+    const f = document.getElementById('bkFile');
+    document.getElementById('bkImport').addEventListener('click', ()=> f.click());
+    f.addEventListener('change', ()=>{ if(f.files[0]) restore(f.files[0]); f.value = ''; });
+  }
+  return {wire};
 })();
 
 /* ---------------- Init ---------------- */
