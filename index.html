@@ -490,6 +490,83 @@
   .snap-chip.w{background:rgba(63,178,127,.18); color:var(--win); border:1px solid rgba(63,178,127,.45);}
   .snap-chip.l{background:rgba(224,90,90,.16); color:var(--loss); border:1px solid rgba(224,90,90,.45);}
   .snap-note{font-size:12px; color:var(--silver); margin-top:12px; line-height:1.5;}
+
+  /* ============ Motion system ============ */
+  :root{ --ease-out:cubic-bezier(.22,1,.36,1); --spring:cubic-bezier(.34,1.56,.64,1); }
+  @keyframes fxRise{ from{opacity:0; transform:translateY(14px) scale(.985);} }
+  @keyframes fxDown{ from{opacity:0; transform:translateY(-10px);} }
+  @keyframes fxFade{ from{opacity:0;} }
+  @keyframes fxSheet{ from{opacity:0; transform:translateY(46px) scale(.97);} }
+  @keyframes fxPop{ 0%{transform:scale(.88);} 60%{transform:scale(1.07);} 100%{transform:scale(1);} }
+  @keyframes fxGrow{ from{transform:scaleX(0);} }
+  @keyframes fxBob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-3px);} }
+  @keyframes fxDrift{ from{transform:translateX(0);} to{transform:translateX(90px);} }
+  @keyframes fxGlow{ 0%,100%{box-shadow:0 0 0 0 rgba(244,123,32,0), 0 0 0 1px rgba(244,123,32,.2) inset;}
+                     50%{box-shadow:0 0 22px 2px rgba(244,123,32,.28), 0 0 0 1px rgba(244,123,32,.35) inset;} }
+  @keyframes fxBusy{ 0%,100%{opacity:1;} 50%{opacity:.5;} }
+  @keyframes fxBump{ 0%{transform:scale(1);} 35%{transform:scale(1.28); text-shadow:0 0 14px rgba(244,123,32,.85);} 100%{transform:scale(1);} }
+  @keyframes fxShake{ 10%,90%{transform:translateX(-1px);} 20%,80%{transform:translateX(3px);} 30%,50%,70%{transform:translateX(-5px);} 40%,60%{transform:translateX(5px);} }
+  @keyframes fxFlash{ from{opacity:1;} to{opacity:0;} }
+  @keyframes fxBounce{ 0%,100%{transform:translateY(0);} 30%{transform:translateY(-8px) scale(1.06);} 60%{transform:translateY(0);} }
+  @keyframes fxP{ 0%{transform:translate(0,0) scale(.4) rotate(0); opacity:0;} 15%{opacity:1;} 100%{transform:translate(var(--dx),var(--dy)) scale(1) rotate(var(--rot)); opacity:0;} }
+  @keyframes fxC{ to{ transform:translate(var(--dx),105vh) rotate(var(--rot)); opacity:.9; } }
+
+  /* ambient */
+  .hero::before{left:-90px; animation:fxDrift 14s linear infinite;}
+  .brand img{animation:fxBob 5s ease-in-out infinite;}
+  .today-card{animation:fxGlow 3s ease-in-out infinite;}
+  .sync-pill.busy{animation:fxBusy 1s ease-in-out infinite;}
+
+  /* tabs & buttons */
+  .tab-btn{transition:background .2s ease, color .2s ease, border-color .2s ease, transform .12s ease;}
+  .tab-btn:active{transform:scale(.95);}
+  .tab-btn.active{animation:fxPop .38s var(--spring);}
+  .btn{transition:transform .12s var(--ease-out), filter .15s ease;}
+  .btn:active{transform:scale(.96);}
+  @media (hover:hover){ .btn-primary:hover{filter:brightness(1.08);} }
+  .fab{transition:transform .2s var(--spring), box-shadow .2s ease; animation:fxPop .6s var(--spring) .7s backwards;}
+  .fab:active{transform:scale(.9) rotate(90deg);}
+  @media (hover:hover){ .fab:hover{transform:scale(1.07) rotate(90deg);} }
+  .game-row, .pick-row{transition:transform .15s var(--ease-out), border-color .15s ease, background .15s ease;}
+  .game-row:active{transform:scale(.985);}
+  @media (hover:hover){ .game-row:hover{transform:translateY(-1px);} }
+  .mood-btn.sel, .pick-btn.sel-win, .pick-btn.sel-loss, .w-q.sel, .w-seg button.sel{animation:fxPop .32s var(--spring);}
+
+  /* sheets & overlays */
+  .overlay.open{animation:fxFade .22s ease-out;}
+  .overlay.open .sheet{animation:fxSheet .42s var(--ease-out);}
+  .watch.open{animation:fxFade .25s ease-out;}
+  .watch.open .w-inner{animation:fxRise .5s var(--ease-out) backwards;}
+
+  /* entrance choreography (class is only present for ~1s after load / tab switch) */
+  .fx-enter .tabpane.active :is(.section-title,.next-card,.stat-card,.game-row,.pick-row,.opp-row,.month-label,.bar-row,.empty-state){
+    animation:fxRise .55s var(--ease-out) backwards; animation-delay:calc(var(--i,0) * 45ms);}
+  .fx-enter .tabpane.active .fx-skip{animation:none;}
+  .fx-enter .tabpane.active .bar-fill{transform-origin:left center; animation:fxGrow .9s var(--ease-out) .2s backwards;}
+  .fx-load .hero-top{animation:fxDown .6s var(--ease-out) backwards;}
+  .fx-load .rs-card{animation:fxRise .6s var(--ease-out) backwards;}
+  .fx-load .rs-card:nth-child(2){animation-delay:.06s;} .fx-load .rs-card:nth-child(3){animation-delay:.12s;} .fx-load .rs-card:nth-child(4){animation-delay:.18s;}
+  .fx-load .tabs{animation:fxRise .6s var(--ease-out) .2s backwards;}
+
+  /* value change + effects */
+  .fx-bump{animation:fxBump .7s var(--ease-out);}
+  .stat-card .val.fx-bump{transform-origin:left center;}
+  .fx-p{position:fixed; font-size:calc(24px * var(--s,1)); pointer-events:none; z-index:300; animation:fxP .85s cubic-bezier(.2,.8,.3,1) forwards;}
+  .fx-c{position:fixed; top:-20px; z-index:400; pointer-events:none; border-radius:2px; animation:fxC var(--dur,2s) cubic-bezier(.3,.6,.5,1) forwards;}
+  .fx-shake{animation:fxShake .4s;}
+  .watch.w-erupt::after, .watch.w-rage::after{content:''; position:fixed; inset:0; pointer-events:none; animation:fxFlash .85s ease-out forwards;}
+  .watch.w-erupt::after{background:radial-gradient(circle at 50% 35%, rgba(244,123,32,.45), transparent 62%);}
+  .watch.w-rage::after{background:radial-gradient(circle at 50% 35%, rgba(224,90,90,.4), transparent 62%);}
+  .watch.w-erupt .w-title{animation:fxBounce .6s var(--ease-out);}
+  .watch.w-rage .w-inner{animation:fxShake .45s;}
+
+  /* off switch + accessibility */
+  html.no-fx *, html.no-fx *::before, html.no-fx *::after{animation:none !important; transition:none !important;}
+  html.no-fx .fx-p, html.no-fx .fx-c{display:none;}
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{animation:none !important; transition:none !important; scroll-behavior:auto !important;}
+    .fx-p, .fx-c{display:none;}
+  }
 </style>
 </head>
 <body>
@@ -1471,8 +1548,11 @@ function openGameSheet(id){
     } else {
       g.result = resultSel;
     }
+    const wasPlayed = g.played;
     g.played = (g.result === 'W' || g.result === 'L');
     Sync.touchGame(g);
+    if(!wasPlayed && g.result === 'W') setTimeout(()=> Fx.confetti(), 300);
+    else if(!wasPlayed && g.result === 'L') setTimeout(()=> Fx.shake(), 250);
     await saveGames(); closeSheet(); renderAll();
   });
   overlay.classList.add('open');
@@ -1721,7 +1801,7 @@ const Sync = (function(){
     let t = '⚪ Local only', cls = '';
     if(enabled()){
       if(status === 'ok'){ t = '🟢 Synced'; cls = 'ok'; }
-      else if(status === 'syncing'){ t = '🟡 Syncing…'; }
+      else if(status === 'syncing'){ t = '🟡 Syncing…'; cls = 'busy'; }
       else if(status === 'offline'){ t = '🟠 Offline' + (n ? ' · '+n+' pending' : ''); }
       else if(status === 'error'){ t = '🔴 Check sync key'; cls = 'bad'; }
       else t = '🟡 Connecting…';
@@ -1740,6 +1820,7 @@ const Sync = (function(){
         ${enabled() ? 'Status: <b>'+status+'</b>' + (lastErr ? ' ('+lastErr+')' : '') + ' · pending changes: <b>'+pending()+'</b><br>Last sync: '+(lastTs ? new Date(lastTs).toLocaleTimeString() : 'never')+'<br>' : 'Not connected — this device only stores data locally.<br>'}
         Device id: ${deviceId}
       </div>
+      <div class="field"><label>Appearance</label><button class="btn btn-ghost" id="fxToggle" type="button"></button><div class="sync-info" id="fxNote" style="margin:6px 0 0;"></div></div>
       <div class="field"><label>Backup</label>
         <div class="sheet-actions" style="flex-wrap:wrap;"><button class="btn btn-ghost" id="bkExport" type="button">⬇ Export backup</button><button class="btn btn-ghost" id="bkImport" type="button">⬆ Restore backup</button></div>
         <input type="file" id="bkFile" accept="application/json,.json" hidden>
@@ -1751,6 +1832,7 @@ const Sync = (function(){
       </div>`;
     document.getElementById('syClose').addEventListener('click', closeSheet);
     Backup.wire();
+    Fx.wire();
     document.getElementById('syGo').addEventListener('click', async ()=>{
       const url = document.getElementById('syUrl').value.trim(), key = document.getElementById('syKey').value.trim();
       if(!url || !key){ document.getElementById('syInfo').textContent = 'Enter both the Worker URL and the sync key.'; return; }
@@ -1907,10 +1989,9 @@ const Watch = (function(){
     const node = srcEl || el.querySelector(`[data-tap="${k}"]`);
     if(node){
       node.classList.add('hit'); setTimeout(()=>node.classList.remove('hit'), 120);
-      const rc = node.getBoundingClientRect(), f = document.createElement('span');
-      f.className = 'w-float'; f.textContent = b.e; f.style.left = (rc.left + rc.width/2 - 14) + 'px'; f.style.top = (rc.top + 6) + 'px';
-      document.body.appendChild(f); setTimeout(()=>f.remove(), 750);
+      Fx.burst(node, b.e, Math.min(1, Math.abs(moodNow()) / 100), b.k === 'garden' ? 10 : 0, b.side === 'down' ? 1 : -1);
     }
+    Fx.moodFx(el, cur.mood);
   }
   function undo(){
     const h = cur.hist.pop(); if(!h) return;
@@ -1998,7 +2079,7 @@ const Watch = (function(){
   function updateCounts(){
     if(!isOpen()) return;
     const t = totals(cur.gid);
-    el.querySelectorAll('[data-count]').forEach(n=>{ n.textContent = t.byKey[n.dataset.count] || ''; });
+    el.querySelectorAll('[data-count]').forEach(n=>{ const v = String(t.byKey[n.dataset.count] || ''); if(n.textContent !== v){ const had = n.textContent !== ''; n.textContent = v; if(had) Fx.bump(n); } });
     const qs = el.querySelector('#wQs'); if(qs) qs.innerHTML = qChipsHtml(t);
   }
 
@@ -2248,12 +2329,138 @@ const Backup = (function(){
   return {wire};
 })();
 
+/* ================= Motion: entrances, count-up, particles, confetti ================= */
+const Fx = (function(){
+  const KEY = 'knicks-fx';
+  let on = localStorage.getItem(KEY) !== 'off';
+  const reduced = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const active = () => on && !reduced();
+  let enterTimer = 0, loadTimer = 0, lastMood = 0;
+  const apply = () => document.documentElement.classList.toggle('no-fx', !on);
+  apply();
+
+  function flash(el, cls, ms){ if(!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); setTimeout(()=> el.classList.remove(cls), ms); }
+
+  function stagger(root){
+    const sel = '.section-title,.next-card,.stat-card,.game-row,.pick-row,.opp-row,.month-label,.bar-row,.empty-state';
+    let i = 0; const vh = window.innerHeight + 80;
+    root.querySelectorAll(sel).forEach(el=>{
+      const below = el.getBoundingClientRect().top > vh;      // don't animate what is off-screen
+      el.classList.toggle('fx-skip', below);
+      el.style.setProperty('--i', Math.min(i++, 14));
+    });
+  }
+
+  function countUp(root){
+    if(!root || !active()) return;
+    root.querySelectorAll('.num,.val,.bar-val').forEach(el=>{
+      if(el.children.length) return;
+      const txt = el.textContent; if(!/\d/.test(txt)) return;
+      el.dataset.fx = txt;
+      const parts = txt.split(/(\d+(?:\.\d+)?)/);
+      const nums = parts.map((p,i)=> i % 2 ? {v:parseFloat(p), d:(p.split('.')[1] || '').length} : null);
+      const t0 = performance.now(), dur = 750;
+      (function step(t){
+        if(!el.isConnected) return;
+        const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+        el.textContent = parts.map((p,i)=> i % 2 ? (nums[i].v * e).toFixed(nums[i].d) : p).join('');
+        if(k < 1) requestAnimationFrame(step); else { el.textContent = txt; delete el.dataset.fx; }
+      })(t0);
+    });
+  }
+
+  function enter(){
+    if(!active()) return;
+    const pane = document.querySelector('.tabpane.active'); if(!pane) return;
+    stagger(pane);
+    document.body.classList.add('fx-enter');
+    clearTimeout(enterTimer); enterTimer = setTimeout(()=> document.body.classList.remove('fx-enter'), 1100);
+    countUp(pane);
+  }
+  function load(){
+    if(!active()) return;
+    document.body.classList.add('fx-load');
+    clearTimeout(loadTimer); loadTimer = setTimeout(()=> document.body.classList.remove('fx-load'), 1500);
+    countUp(document.getElementById('recordStrip'));
+    enter();
+  }
+
+  // emoji particles from a button; dir -1 = fly up (celebrate), +1 = drop down (frustration)
+  function burst(node, emoji, power, count, dir){
+    if(!active() || !node) return;
+    power = power || 0; dir = dir || -1;
+    const rc = node.getBoundingClientRect(), n = count || Math.min(7, 1 + Math.floor(power * 6));
+    for(let i = 0; i < n; i++){
+      const s = document.createElement('span'); s.className = 'fx-p'; s.textContent = emoji;
+      const spread = n > 1 ? 130 : 0, ang = ((dir < 0 ? -90 : 90) + (Math.random() - .5) * spread) * Math.PI / 180;
+      const dist = 50 + Math.random() * (60 + power * 70);
+      s.style.left = (rc.left + rc.width / 2 - 14) + 'px'; s.style.top = (rc.top + rc.height / 3) + 'px';
+      s.style.setProperty('--dx', (Math.cos(ang) * dist).toFixed(1) + 'px');
+      s.style.setProperty('--dy', (Math.sin(ang) * dist).toFixed(1) + 'px');
+      s.style.setProperty('--rot', (Math.random() * 80 - 40).toFixed(0) + 'deg');
+      s.style.setProperty('--s', (0.8 + Math.random() * 0.7 + power * 0.4).toFixed(2));
+      document.body.appendChild(s); setTimeout(()=> s.remove(), 900);
+    }
+  }
+
+  function confetti(n){
+    if(!active()) return;
+    const cols = ['#f47b20','#2e7bd6','#ffffff','#9fb3c8','#ffb066'];
+    for(let i = 0; i < (n || 48); i++){
+      const c = document.createElement('i'); c.className = 'fx-c';
+      c.style.left = (Math.random() * 100) + 'vw'; c.style.background = cols[i % cols.length];
+      c.style.width = (6 + Math.random() * 6) + 'px'; c.style.height = (8 + Math.random() * 8) + 'px';
+      c.style.animationDelay = (Math.random() * .4).toFixed(2) + 's';
+      c.style.setProperty('--dx', (Math.random() * 160 - 80).toFixed(0) + 'px');
+      c.style.setProperty('--rot', (Math.random() * 900 - 450).toFixed(0) + 'deg');
+      c.style.setProperty('--dur', (1.6 + Math.random() * 1.2).toFixed(2) + 's');
+      document.body.appendChild(c); setTimeout(()=> c.remove(), 3500);
+    }
+  }
+
+  function moodFx(el, m){
+    if(!active()) return;
+    const now = Date.now(); if(now - lastMood < 1400) return;
+    if(m >= 80){ lastMood = now; flash(el, 'w-erupt', 900); confetti(26); }
+    else if(m <= -80){ lastMood = now; flash(el, 'w-rage', 550); }
+  }
+  const bump = el => { if(active()) flash(el, 'fx-bump', 600); };
+  const shake = () => { if(active()) flash(document.querySelector('.section'), 'fx-shake', 450); };
+
+  // pulse any headline number that changed after a re-render (e.g. you just logged a result)
+  const SELS = ['#recordStrip .num', '#snapshotGrid .val'];
+  const snapshot = () => SELS.map(s=> [...document.querySelectorAll(s)].map(e=> e.dataset.fx || e.textContent));
+  function flashChanged(before){
+    if(!active()) return;
+    SELS.forEach((s, si)=> [...document.querySelectorAll(s)].forEach((e, i)=>{
+      const b = before[si][i]; if(b !== undefined && b !== e.textContent) bump(e);
+    }));
+  }
+
+  function wire(){
+    const btn = document.getElementById('fxToggle'), note = document.getElementById('fxNote'); if(!btn) return;
+    const paint = ()=>{
+      btn.textContent = 'Animations: ' + (on ? 'On' : 'Off');
+      note.textContent = reduced() ? 'This device has Reduce Motion turned on, so animations stay off.' : '';
+    };
+    paint();
+    btn.addEventListener('click', ()=>{ on = !on; localStorage.setItem(KEY, on ? 'on' : 'off'); apply(); paint(); if(on) enter(); });
+  }
+
+  document.querySelectorAll('.tab-btn').forEach(b=> b.addEventListener('click', ()=> enter()));
+  const origRenderAll = renderAll;
+  renderAll = function(){ const before = snapshot(); origRenderAll(); flashChanged(before); };
+
+  return {enter, load, burst, confetti, moodFx, bump, shake, wire};
+})();
+
 /* ---------------- Init ---------------- */
 (async function init(){
   await loadPredictions();
   await loadGames();
   Sync.beforeRender();
   renderAll();
+  Fx.load();
   Sync.start();
 })();
 
