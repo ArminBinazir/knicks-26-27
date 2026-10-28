@@ -1087,7 +1087,8 @@ function renderTodayGame(){
   let bodyHtml;
   if(g.played && res){
     const w = res === 'W';
-    const scoreTxt = hasScores(g) ? `${g.knicksScore} – ${g.oppScore}` : (w?'Win':'Loss');
+    // the away team is drawn on the left and the home team on the right, so print the score in that same order
+    const scoreTxt = hasScores(g) ? (g.home ? `${g.oppScore} – ${g.knicksScore}` : `${g.knicksScore} – ${g.oppScore}`) : (w?'Win':'Loss');
     bodyHtml = `
       <div class="matchup">
         <div class="team-block"><img src="${logoUrl(awayTeam.abbr)}"><span>${awayTeam.name}</span></div>
