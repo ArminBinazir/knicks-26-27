@@ -578,6 +578,23 @@
   .hist-row .hist-opp small{display:block; font-size:10px; font-weight:500; color:var(--silver); margin-top:1px;}
   .hist-row .hist-pick{width:auto; max-width:120px; text-align:right;}
   .hist-row.tappable{padding:9px 6px; border-radius:10px; border-bottom:1px solid var(--line);}
+
+  /* ============ Next Game -> Predict shortcut ============ */
+  .predict-link{margin-top:12px; width:100%; display:flex; justify-content:space-between; align-items:center; gap:8px;
+    padding:12px 14px; border-radius:12px; border:1px solid rgba(46,123,214,.7); background:rgba(46,123,214,.16);
+    color:var(--paper); font:700 13px 'Archivo',sans-serif; cursor:pointer; text-align:left; touch-action:manipulation;
+    transition:transform .12s ease, background .15s ease;}
+  .predict-link:active{transform:scale(.98);}
+  @media (hover:hover){ .predict-link:hover{background:rgba(46,123,214,.28);} }
+  .predict-link b{color:var(--knicks-orange-2); font-weight:800;}
+  .predict-link span.chev{font-size:18px; line-height:1; opacity:.8;}
+  @keyframes pickFlash{ 0%,100%{box-shadow:0 0 0 0 rgba(244,123,32,0);} 25%,70%{box-shadow:0 0 0 2px var(--knicks-orange), 0 0 18px rgba(244,123,32,.45);} }
+  .pick-row.pick-flash{animation:pickFlash 1.6s ease-out;}
+
+  /* ============ Stats page: tappable bars ============ */
+  .bar-row.tappable{padding:8px 8px; margin-left:-8px; margin-right:-8px; border-radius:10px; border:1px solid transparent;}
+  .bar-row.tappable::after{content:'›'; color:var(--silver); margin-left:10px; font-size:18px; line-height:1; opacity:.7;}
+  @media (hover:hover){ .bar-row.tappable:hover{background:rgba(255,255,255,.05);} }
 </style>
 </head>
 <body>
@@ -635,6 +652,7 @@
   <div id="pane-stats" class="tabpane">
     <div class="col">
       <div class="section-title"><span class="num-tag">·</span><h2>Home vs Road</h2></div>
+      <div class="tap-hint">Tap any card or bar for details</div>
       <div id="homeRoadBars"></div>
 
       <div class="section-title" style="margin-top:20px;"><span class="num-tag">·</span><h2>Monthly Record</h2></div>
@@ -1158,9 +1176,29 @@ function renderNextGame(){
         <b>${g.home?'Home · MSG':'Away'}</b>
       </div>
       ${g.note ? `<div class="next-meta" style="border-top:none; padding-top:4px;"><span>${g.note}</span></div>` : ''}
+      <button type="button" class="predict-link" data-predict="${g.id}">${predictLinkHtml(g)}<span class="chev">›</span></button>
       <div class="next-cta">Game details <span>›</span></div>
     </div>
   `;
+}
+
+function predictLinkHtml(g){
+  const pick = predictions[g.id];
+  if(gameHasStarted(g)) return `<span>🔮 Tipped off · ${pick ? 'you picked <b>'+(pick==='W'?'Win':'Lose')+'</b> · ' : ''}log the result</span>`;
+  if(pick) return `<span>🔮 Your pick: <b>${pick==='W'?'Win':'Lose'}</b> · change it</span>`;
+  return `<span>🔮 <b>Make your pick</b> for this game</span>`;
+}
+
+function goPredict(id){
+  goTab('predict');
+  setTimeout(()=>{
+    const btn = document.querySelector(`#pane-predict [data-id="${id}"]`);
+    const row = btn && btn.closest('.pick-row');
+    if(!row) return;
+    row.scrollIntoView({block:'center', behavior:'smooth'});
+    row.classList.remove('pick-flash'); void row.offsetWidth; row.classList.add('pick-flash');
+    setTimeout(()=> row.classList.remove('pick-flash'), 1700);
+  }, 220);
 }
 
 /* ---------------- Render: Snapshot + Last5 ---------------- */
@@ -1246,16 +1284,16 @@ function renderStatsTab(){
   const homeTotal = s.homeCount || 1;
   const roadTotal = s.roadCount || 1;
   hr.innerHTML = `
-    <div class="bar-row"><span class="bar-lbl">Home</span><div class="bar-track"><div class="bar-fill" style="width:${(s.homeW/homeTotal*100)||0}%"></div></div><span class="bar-val">${s.homeW}-${s.homeL}</span></div>
-    <div class="bar-row"><span class="bar-lbl">Road</span><div class="bar-track"><div class="bar-fill" style="width:${(s.roadW/roadTotal*100)||0}%"></div></div><span class="bar-val">${s.roadW}-${s.roadL}</span></div>
+    <div class="bar-row tappable" data-detail="home" role="button" tabindex="0"><span class="bar-lbl">Home</span><div class="bar-track"><div class="bar-fill" style="width:${(s.homeW/homeTotal*100)||0}%"></div></div><span class="bar-val">${s.homeW}-${s.homeL}</span></div>
+    <div class="bar-row tappable" data-detail="road" role="button" tabindex="0"><span class="bar-lbl">Road</span><div class="bar-track"><div class="bar-fill" style="width:${(s.roadW/roadTotal*100)||0}%"></div></div><span class="bar-val">${s.roadW}-${s.roadL}</span></div>
   `;
 
   const dg = document.getElementById('diffGrid');
   dg.innerHTML = `
-    <div class="stat-card"><div class="lbl">Points For</div><div class="val">${s.pf}</div><div class="sub">${s.played?( s.pf/s.played).toFixed(1):'0'} / game</div></div>
-    <div class="stat-card"><div class="lbl">Points Against</div><div class="val">${s.pa}</div><div class="sub">${s.played?(s.pa/s.played).toFixed(1):'0'} / game</div></div>
-    <div class="stat-card"><div class="lbl">Best Win</div><div class="val pos">${s.bestWin? '+'+s.bestWin.margin : '—'}</div><div class="sub">${s.bestWin? 'vs '+teamName(s.bestWin.g.opp) : 'none yet'}</div></div>
-    <div class="stat-card"><div class="lbl">Worst Loss</div><div class="val neg">${s.worstLoss? s.worstLoss.margin : '—'}</div><div class="sub">${s.worstLoss? 'vs '+teamName(s.worstLoss.g.opp) : 'none yet'}</div></div>
+    <div class="stat-card tappable" data-detail="pf" role="button" tabindex="0"><div class="lbl">Points For</div><div class="val">${s.pf}</div><div class="sub">${s.played?( s.pf/s.played).toFixed(1):'0'} / game</div></div>
+    <div class="stat-card tappable" data-detail="pa" role="button" tabindex="0"><div class="lbl">Points Against</div><div class="val">${s.pa}</div><div class="sub">${s.played?(s.pa/s.played).toFixed(1):'0'} / game</div></div>
+    <div class="stat-card tappable" data-detail="bestwin" role="button" tabindex="0"><div class="lbl">Best Win</div><div class="val pos">${s.bestWin? '+'+s.bestWin.margin : '—'}</div><div class="sub">${s.bestWin? 'vs '+teamName(s.bestWin.g.opp) : 'none yet'}</div></div>
+    <div class="stat-card tappable" data-detail="worstloss" role="button" tabindex="0"><div class="lbl">Worst Loss</div><div class="val neg">${s.worstLoss? s.worstLoss.margin : '—'}</div><div class="sub">${s.worstLoss? 'vs '+teamName(s.worstLoss.g.opp) : 'none yet'}</div></div>
   `;
 
   const mb = document.getElementById('monthlyBars');
@@ -1266,14 +1304,14 @@ function renderStatsTab(){
     mb.innerHTML = months.map(m=>{
       const rec = s.byMonth[m];
       const total = rec.w+rec.l;
-      return `<div class="bar-row"><span class="bar-lbl" style="width:100px;">${m.split(' ')[0]}</span><div class="bar-track"><div class="bar-fill" style="width:${(rec.w/total*100)||0}%"></div></div><span class="bar-val">${rec.w}-${rec.l}</span></div>`;
+      return `<div class="bar-row tappable" data-detail="month" data-key="${m}" role="button" tabindex="0"><span class="bar-lbl" style="width:100px;">${m.split(' ')[0]}</span><div class="bar-track"><div class="bar-fill" style="width:${(rec.w/total*100)||0}%"></div></div><span class="bar-val">${rec.w}-${rec.l}</span></div>`;
     }).join('');
   }
 
   const sg = document.getElementById('streakGrid');
   sg.innerHTML = `
-    <div class="stat-card"><div class="lbl">Current Streak</div><div class="val ${s.streakType==='W'?'pos':(s.streakType==='L'?'neg':'')}">${s.streakType?s.streakType+s.streak:'—'}</div></div>
-    <div class="stat-card"><div class="lbl">Games Remaining</div><div class="val">${s.gamesLeft}</div><div class="sub">of ${games.length} tracked</div></div>
+    <div class="stat-card tappable" data-detail="streak" role="button" tabindex="0"><div class="lbl">Current Streak</div><div class="val ${s.streakType==='W'?'pos':(s.streakType==='L'?'neg':'')}">${s.streakType?s.streakType+s.streak:'—'}</div></div>
+    <div class="stat-card tappable" data-detail="remaining" role="button" tabindex="0"><div class="lbl">Games Remaining</div><div class="val">${s.gamesLeft}</div><div class="sub">of ${games.length} tracked</div></div>
   `;
   Watch.renderStats();
 }
@@ -1420,6 +1458,7 @@ function renderPredictTab(){
         Sync.touchPred(id);
         await savePredictions();
         renderPredictTab();
+        renderNextGame();
       });
     });
     if(open.length > predictShown){
@@ -2225,17 +2264,17 @@ const Watch = (function(){
     const qDown = {}; rows.forEach(r=> Object.entries(r.t.byQ).forEach(([q, bq])=>{ qDown[q] = (qDown[q]||0) + bq.down; }));
     const worstQ = Object.entries(qDown).sort((a,b)=>b[1] - a[1])[0];
     const keyDown = BTN.filter(b=>b.side === 'down').map(b=>({b, n: sum(rows, r=>r.t.byKey[b.k]||0)})).sort((a,b)=>b.n - a.n)[0];
-    const card = (lbl, val, sub, cls='')=>`<div class="stat-card"><div class="lbl">${lbl}</div><div class="val ${cls}">${val}</div><div class="sub">${sub}</div></div>`;
+    const card = (lbl, val, sub, cls, kind)=>`<div class="stat-card tappable" data-fan="${kind}" role="button" tabindex="0"><div class="lbl">${lbl}</div><div class="val ${cls}">${val}</div><div class="sub">${sub}</div></div>`;
     const gl = r=>`${r.g.home ? 'vs' : '@'} ${teamName(r.g.opp)} · ${fmtGameDate(r.g).full}`;
     box.innerHTML =
-      card('Hype / Rage taps', `${up} / ${down}`, `${rows.length} game${rows.length === 1 ? '' : 's'} watched`) +
-      card('Rage taps per loss', avg(L, r=>r.t.down), `${L.length} loss${L.length === 1 ? '' : 'es'} tracked`, 'neg') +
-      card('Rage taps per win', avg(W, r=>r.t.down), `${W.length} win${W.length === 1 ? '' : 's'} tracked`) +
-      card('Hype taps per win', avg(W, r=>r.t.up), 'celebration energy', 'pos') +
-      card('Most stressful game', stress.t.down, gl(stress), 'neg') +
-      card('Most joyful game', joy.t.up, gl(joy), 'pos') +
-      card('Worst quarter', worstQ && worstQ[1] ? qLabel(worstQ[0]) : '—', worstQ && worstQ[1] ? `${worstQ[1]} rage taps all season` : 'no rage yet') +
-      card('Go-to groan', keyDown && keyDown.n ? keyDown.b.e : '—', keyDown && keyDown.n ? `${keyDown.b.l} ×${keyDown.n}` : 'none yet');
+      card('Hype / Rage taps', `${up} / ${down}`, `${rows.length} game${rows.length === 1 ? '' : 's'} watched`, '', 'total') +
+      card('Rage taps per loss', avg(L, r=>r.t.down), `${L.length} loss${L.length === 1 ? '' : 'es'} tracked`, 'neg', 'rageloss') +
+      card('Rage taps per win', avg(W, r=>r.t.down), `${W.length} win${W.length === 1 ? '' : 's'} tracked`, '', 'ragewin') +
+      card('Hype taps per win', avg(W, r=>r.t.up), 'celebration energy', 'pos', 'hypewin') +
+      card('Most stressful game', stress.t.down, gl(stress), 'neg', 'stressful') +
+      card('Most joyful game', joy.t.up, gl(joy), 'pos', 'joyful') +
+      card('Worst quarter', worstQ && worstQ[1] ? qLabel(worstQ[0]) : '—', worstQ && worstQ[1] ? `${worstQ[1]} rage taps all season` : 'no rage yet', '', 'worstq') +
+      card('Go-to groan', keyDown && keyDown.n ? keyDown.b.e : '—', keyDown && keyDown.n ? `${keyDown.b.l} ×${keyDown.n}` : 'none yet', '', 'groan');
   }
 
   function exportData(){ return {taps, live}; }
@@ -2249,7 +2288,74 @@ const Watch = (function(){
     Object.entries(d.live || {}).forEach(([gid, l])=>{ const u = Sync.stamp((live[gid] && live[gid].u) || l.u || 0); live[gid] = {mode:l.mode, q:l.q, u}; Sync.queue('live:'+gid, {mode:l.mode, q:l.q}, u); });
     persist();
   }
-  return {open, close, refresh, isOpen, persist, applyTaps, applyLive, queueAllOwn, chipHtml, sheetHtml, renderStats, exportData, importData};
+  function openFan(kind){
+    const rows = sortedGames().map(g=>({g, t:totals(g.id), res:getResult(g)})).filter(r=>r.t.total > 0);
+    if(!rows.length) return;
+    const sum = (arr, f)=> arr.reduce((s, r)=> s + f(r), 0);
+    const byId = {}; rows.forEach(r=>{ byId[r.g.id] = r; });
+    const avg = (arr, f)=> arr.length ? (sum(arr, f) / arr.length).toFixed(1) : '—';
+    const L = rows.filter(r=>r.g.played && r.res === 'L'), W = rows.filter(r=>r.g.played && r.res === 'W');
+    const rank = side => BTN.filter(b=>b.side === side).map(b=>({b, n: sum(rows, r=>r.t.byKey[b.k] || 0)})).sort((a,b)=>b.n - a.n);
+    const topList = (arr, key, emoji, n)=> dGames(arr.slice().sort((a,b)=>b.t[key] - a.t[key]).slice(0, n || 50).map(r=>r.g), g=>({text:`${emoji} ${byId[g.id].t[key]}`, cls:''}));
+
+    if(kind === 'total'){
+      const up = sum(rows, r=>r.t.up), down = sum(rows, r=>r.t.down);
+      const chips = BTN.map(b=>({b, n: sum(rows, r=>r.t.byKey[b.k] || 0)})).filter(x=>x.n).sort((a,b)=>b.n - a.n)
+        .map(x=>`<span>${x.b.e} ${x.b.l} ×${x.n}</span>`).join('');
+      dShow('Hype / Rage taps', `${rows.length} game${rows.length === 1 ? '' : 's'} watched`,
+        dRow('Hype taps', up, 'pos') + dRow('Rage taps', down, 'neg') + dRow('Hype share', (up + down) ? Math.round(up / (up + down) * 100) + '%' : '—') +
+        `<div class="snap-h">By button</div><div class="fp-chips">${chips}</div>` +
+        `<div class="snap-h">Games watched · tap to open</div>` + dGames(rows.slice().reverse().map(r=>r.g), g=>({text:`🙌 ${byId[g.id].t.up} · 😤 ${byId[g.id].t.down}`, cls:''})));
+      return;
+    }
+    if(kind === 'rageloss' || kind === 'ragewin' || kind === 'hypewin'){
+      const cfg = {
+        rageloss:{arr:L, key:'down', emoji:'😤', title:'Rage taps per loss', what:'loss'},
+        ragewin: {arr:W, key:'down', emoji:'😤', title:'Rage taps per win',  what:'win'},
+        hypewin: {arr:W, key:'up',   emoji:'🙌', title:'Hype taps per win',  what:'win'}
+      }[kind];
+      if(!cfg.arr.length){ dShow(cfg.title, 'Nothing yet', dEmpty(`No watched ${cfg.what}s with taps yet.`)); return; }
+      const mx = cfg.arr.slice().sort((a,b)=>b.t[cfg.key] - a.t[cfg.key])[0];
+      dShow(cfg.title, `${cfg.arr.length} ${cfg.what}${cfg.arr.length === 1 ? '' : 's'} tracked`,
+        dRow('Average', avg(cfg.arr, r=>r.t[cfg.key])) + dRow('Total', sum(cfg.arr, r=>r.t[cfg.key])) +
+        dRow('Highest', `${mx.t[cfg.key]} vs ${teamName(mx.g.opp)}`) +
+        `<div class="snap-h">Highest first · tap to open</div>` + topList(cfg.arr, cfg.key, cfg.emoji));
+      return;
+    }
+    if(kind === 'stressful' || kind === 'joyful'){
+      const key = kind === 'stressful' ? 'down' : 'up', emoji = key === 'down' ? '😤' : '🙌', top = rows.slice().sort((a,b)=>b.t[key] - a.t[key])[0];
+      const pk = peak(top.t, key);
+      dShow(kind === 'stressful' ? 'Most stressful games' : 'Most joyful games', `Ranked by ${key === 'down' ? 'rage' : 'hype'} taps`,
+        dRow('#1', `${top.g.home ? 'vs' : '@'} ${teamName(top.g.opp)} · ${emoji} ${top.t[key]}`) +
+        (pk ? dRow(key === 'down' ? 'Roughest stretch' : 'Best stretch', `${qLabel(pk.q)} · ${pk.b.e} ${pk.b.l} ×${pk.n}`) : '') +
+        `<div class="snap-h">Top 5 · tap to open</div>` + topList(rows, key, emoji, 5));
+      return;
+    }
+    if(kind === 'worstq'){
+      const qs = QS.map(q=>({q, down: sum(rows, r=>(r.t.byQ[q] || {}).down || 0), up: sum(rows, r=>(r.t.byQ[q] || {}).up || 0)})).filter(x=>x.up || x.down);
+      const mxd = Math.max(0, ...qs.map(x=>x.down));
+      const moments = [];
+      rows.forEach(r=> Object.entries(r.t.byQ).forEach(([q, bq])=> Object.entries(bq.keys).forEach(([k, n])=>{
+        const b = BTN.find(x=>x.k === k); if(b && b.side === 'down') moments.push({g:r.g, q, b, n});
+      })));
+      moments.sort((a,b)=>b.n - a.n);
+      const mm = {}; moments.slice(0, 5).forEach(m=>{ mm[m.g.id + m.q + m.b.k] = m; });
+      dShow('Rage by quarter', 'All watched games combined',
+        qs.map(x=>dRow(qLabel(x.q), `😤 ${x.down} · 🙌 ${x.up}`, mxd && x.down === mxd ? 'neg' : '')).join('') +
+        (moments.length ? `<div class="snap-h">Roughest single stretches · tap to open</div>` +
+          `<div class="snap-log">${moments.slice(0, 5).map(m=>`<div class="snap-g tappable" data-gid="${m.g.id}" role="button" tabindex="0"><img src="${logoUrl(m.g.opp)}" alt="">
+            <div class="snap-gt"><b>${m.g.home ? 'vs' : '@'} ${teamName(m.g.opp)}</b><span>${fmtGameDate(m.g).full}</span></div>
+            <div class="snap-gr">${qLabel(m.q)} ${m.b.e} ×${m.n}</div></div>`).join('')}</div>` : ''));
+      return;
+    }
+    if(kind === 'groan'){
+      dShow('Your go-to reactions', 'Season totals across all watched games',
+        `<div class="snap-h">Vent buttons</div>` + rank('down').map(x=>dRow(`${x.b.e} ${x.b.l}`, x.n, x.n ? 'neg' : '')).join('') +
+        `<div class="snap-h">Cheer buttons</div>` + rank('up').map(x=>dRow(`${x.b.e} ${x.b.l}`, x.n, x.n ? 'pos' : '')).join(''));
+    }
+  }
+
+  return {open, close, refresh, isOpen, persist, applyTaps, applyLive, queueAllOwn, chipHtml, sheetHtml, renderStats, exportData, importData, openFan};
 })();
 
 /* ================= Home: tappable cards + snapshot detail sheets ================= */
@@ -2278,6 +2384,7 @@ const Snap = (function(){
   }
   function open(kind){
     const s = computeStats(), pg = playedGames(), l10 = pg.slice(-10), r10 = rec(l10), total = 82;   // regular-season length
+    const onStats = document.getElementById('pane-stats').classList.contains('active');
     const homeG = pg.filter(g=>g.home), roadG = pg.filter(g=>!g.home);
     const scored = pg.filter(hasScores);
     let title = '', sub = '', body = '';
@@ -2310,10 +2417,10 @@ const Snap = (function(){
              `<div class="snap-h">Last 10 (oldest → newest)</div><div class="snap-chips">${l10.length ? l10.map(g=>{ const w = getResult(g) === 'W'; return `<span class="snap-chip ${w ? 'w' : 'l'}">${w ? 'W' : 'L'}</span>`; }).join('') : '<span style="color:var(--silver);font-size:13px;">Nothing yet</span>'}</div>`;
     }
     sheetEl.innerHTML = `<button class="close-x" id="snClose">✕</button><h3>${title}</h3><div class="snap-sub">${sub}</div>${body}
-      <div class="sheet-actions" style="margin-top:16px;"><button class="btn btn-ghost" id="snStats">View full stats ›</button><button class="btn btn-primary" id="snDone">Done</button></div>`;
+      <div class="sheet-actions" style="margin-top:16px;">${onStats ? '' : '<button class="btn btn-ghost" id="snStats">View full stats ›</button>'}<button class="btn btn-primary" id="snDone">Done</button></div>`;
     sheetEl.querySelector('#snClose').addEventListener('click', closeSheet);
     sheetEl.querySelector('#snDone').addEventListener('click', closeSheet);
-    sheetEl.querySelector('#snStats').addEventListener('click', ()=>{ closeSheet(); goTab('stats'); });
+    const sb = sheetEl.querySelector('#snStats'); if(sb) sb.addEventListener('click', ()=>{ closeSheet(); goTab('stats'); });
     sheetEl.querySelectorAll('.snap-g').forEach(n=> n.addEventListener('click', ()=> openGameSheet(n.dataset.gid)));
     overlay.classList.add('open');
   }
@@ -2328,6 +2435,7 @@ const Snap = (function(){
     const c = e.target.closest('[data-gid]'); if(c) openGameSheet(c.dataset.gid);
   });
   document.getElementById('nextGameCard').addEventListener('click', e=>{
+    const pl = e.target.closest('[data-predict]'); if(pl){ goPredict(pl.dataset.predict); return; }
     const c = e.target.closest('[data-gid]'); if(c) openGameSheet(c.dataset.gid);
   });
   // keyboard: Enter / Space activates any tappable card
@@ -2508,6 +2616,106 @@ const Fx = (function(){
   renderAll = function(){ const before = snapshot(); origRenderAll(); flashChanged(before); };
 
   return {enter, load, burst, confetti, moodFx, bump, shake, wire};
+})();
+
+/* ================= Stats page: tappable cards and bars -> detail sheets ================= */
+function dRow(l, v, c){ return `<div class="snap-row"><span>${l}</span><b class="${c || ''}">${v}</b></div>`; }
+function dEmpty(t){ return `<div class="empty-state" style="padding:16px;">${t}</div>`; }
+function dShow(title, sub, body){
+  sheetEl.innerHTML = `<button class="close-x" id="dClose">✕</button><h3>${title}</h3><div class="snap-sub">${sub || ''}</div>${body}
+    <div class="sheet-actions" style="margin-top:16px;"><button class="btn btn-primary" id="dDone">Done</button></div>`;
+  sheetEl.querySelector('#dClose').addEventListener('click', closeSheet);
+  sheetEl.querySelector('#dDone').addEventListener('click', closeSheet);
+  sheetEl.querySelectorAll('.snap-g').forEach(n=> n.addEventListener('click', ()=> openGameSheet(n.dataset.gid)));
+  overlay.classList.add('open');
+}
+function dGames(list, right){
+  return `<div class="snap-log">${list.map(g=>{
+    const r = right(g);
+    return `<div class="snap-g tappable" data-gid="${g.id}" role="button" tabindex="0"><img src="${logoUrl(g.opp)}" alt="">
+      <div class="snap-gt"><b>${g.home ? 'vs' : '@'} ${teamName(g.opp)}</b><span>${fmtGameDate(g).full}</span></div>
+      <div class="snap-gr ${r.cls || ''}">${r.text}</div></div>`;
+  }).join('')}</div>`;
+}
+const dResult = g => { const w = getResult(g) === 'W'; return {text: (w ? 'W' : 'L') + (hasScores(g) ? ' ' + g.knicksScore + '–' + g.oppScore : ''), cls: w ? 'pos' : 'neg'}; };
+
+const Detail = (function(){
+  const pct = (w, l) => (w + l) ? (w / (w + l) * 100).toFixed(1) + '%' : '—';
+  const sgn = n => (n >= 0 ? '+' : '') + n.toFixed(1);
+  const chips = list => list.length ? `<div class="snap-chips">${list.map(g=>{ const w = getResult(g) === 'W'; return `<span class="snap-chip ${w ? 'w' : 'l'}">${w ? 'W' : 'L'}</span>`; }).join('')}</div>` : '';
+
+  function split(title, list){
+    if(!list.length){ dShow(title, 'No games logged yet', dEmpty('Log a result to see this breakdown.')); return; }
+    const w = list.filter(g=>getResult(g) === 'W').length, l = list.length - w, sc = list.filter(hasScores);
+    const pf = sc.reduce((s,g)=>s + g.knicksScore, 0), pa = sc.reduce((s,g)=>s + g.oppScore, 0);
+    const margin = sc.length ? (pf - pa) / sc.length : 0;
+    dShow(title, `${w}–${l} · ${pct(w, l)}`,
+      dRow('Record', `${w}–${l}`) + dRow('Win %', pct(w, l)) +
+      dRow('Avg margin', sc.length ? sgn(margin) : '—', sc.length ? (margin >= 0 ? 'pos' : 'neg') : '') +
+      dRow('Points for / game', sc.length ? (pf / sc.length).toFixed(1) : '—') +
+      dRow('Points against / game', sc.length ? (pa / sc.length).toFixed(1) : '—') +
+      `<div class="snap-h">Last 5 (oldest → newest)</div>${chips(list.slice(-5))}` +
+      `<div class="snap-h">Games · tap to open</div>` + dGames(list.slice().reverse(), dResult));
+  }
+
+  function points(kind){
+    const sc = playedGames().filter(hasScores), f = kind === 'pf' ? (g=>g.knicksScore) : (g=>g.oppScore);
+    const title = kind === 'pf' ? 'Points For' : 'Points Against';
+    if(!sc.length){ dShow(title, 'No scores logged yet', dEmpty('Enter final scores on your games to see this.')); return; }
+    const total = sc.reduce((s,g)=>s + f(g), 0), sorted = sc.slice().sort((a,b)=> kind === 'pf' ? f(b) - f(a) : f(a) - f(b));
+    const hi = sc.slice().sort((a,b)=>f(b) - f(a))[0], lo = sc.slice().sort((a,b)=>f(a) - f(b))[0];
+    const played = playedGames().length;
+    dShow(title, `${total} total over ${sc.length} game${sc.length === 1 ? '' : 's'}`,
+      dRow('Total', total) + dRow('Per game', (total / sc.length).toFixed(1)) +
+      dRow(kind === 'pf' ? 'Most scored' : 'Most allowed', `${f(hi)} vs ${teamName(hi.opp)}`) +
+      dRow(kind === 'pf' ? 'Fewest scored' : 'Fewest allowed', `${f(lo)} vs ${teamName(lo.opp)}`) +
+      `<div class="snap-h">${kind === 'pf' ? 'Highest scoring first' : 'Fewest allowed first'} · tap to open</div>` +
+      dGames(sorted, g=>({text: f(g) + ' pts', cls: ''})) +
+      (sc.length < played ? `<div class="snap-note">${played - sc.length} played game${played - sc.length === 1 ? ' has' : 's have'} no score entered and ${played - sc.length === 1 ? 'is' : 'are'} left out.</div>` : ''));
+  }
+
+  function extremes(kind){
+    const sc = playedGames().filter(hasScores), m = g => g.knicksScore - g.oppScore;
+    const best = kind === 'bestwin';
+    const list = (best ? sc.filter(g=>m(g) > 0).sort((a,b)=>m(b) - m(a)) : sc.filter(g=>m(g) < 0).sort((a,b)=>m(a) - m(b)));
+    const title = best ? 'Best Wins' : 'Worst Losses';
+    if(!list.length){ dShow(title, 'Nothing yet', dEmpty(best ? 'No wins with a score logged yet.' : 'No losses with a score logged yet.')); return; }
+    const top = list[0];
+    dShow(title, `${best ? 'Biggest win' : 'Worst loss'}: ${best ? '+' : ''}${m(top)} vs ${teamName(top.opp)}`,
+      dRow('Opponent', `${top.home ? 'vs' : '@'} ${teamName(top.opp)}`) + dRow('Date', fmtGameDate(top).full) +
+      dRow('Final score', `${top.knicksScore}–${top.oppScore}`) + dRow('Margin', (best ? '+' : '') + m(top), best ? 'pos' : 'neg') +
+      `<div class="snap-h">Top ${Math.min(5, list.length)} · tap to open</div>` +
+      dGames(list.slice(0, 5), g=>({text: (m(g) > 0 ? '+' : '') + m(g), cls: best ? 'pos' : 'neg'})));
+  }
+
+  function remaining(){
+    const left = sortedGames().filter(g=>!g.played), homeLeft = left.filter(g=>g.home).length;
+    if(!left.length){ dShow('Games Remaining', 'Season complete', dEmpty('No games remaining.')); return; }
+    const nx = left[0];
+    dShow('Games Remaining', `${left.length} of ${games.length} tracked`,
+      dRow('Games left', left.length) + dRow('Home games left', homeLeft) + dRow('Road games left', left.length - homeLeft) +
+      dRow('Next game', `${nx.home ? 'vs' : '@'} ${teamName(nx.opp)}`) +
+      `<div class="snap-h">Schedule · tap to open</div>` + dGames(left, g=>({text: g.home ? 'Home' : 'Away', cls: ''})));
+  }
+
+  function open(kind, key){
+    const pg = playedGames();
+    if(kind === 'home') return split('Home record', pg.filter(g=>g.home));
+    if(kind === 'road') return split('Road record', pg.filter(g=>!g.home));
+    if(kind === 'month') return split(key, pg.filter(g=>fmtGameDate(g).monthKey === key));
+    if(kind === 'pf' || kind === 'pa') return points(kind);
+    if(kind === 'bestwin' || kind === 'worstloss') return extremes(kind);
+    if(kind === 'streak') return Snap.open('streak');
+    if(kind === 'remaining') return remaining();
+  }
+  return {open};
+})();
+
+(function wireStats(){
+  document.getElementById('pane-stats').addEventListener('click', e=>{
+    const f = e.target.closest('[data-fan]'); if(f){ Watch.openFan(f.dataset.fan); return; }
+    const c = e.target.closest('[data-detail]'); if(c) Detail.open(c.dataset.detail, c.dataset.key);
+  });
 })();
 
 /* ---------------- Init ---------------- */
