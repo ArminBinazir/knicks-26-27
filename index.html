@@ -595,6 +595,11 @@
   .bar-row.tappable{padding:8px 8px; margin-left:-8px; margin-right:-8px; border-radius:10px; border:1px solid transparent;}
   .bar-row.tappable::after{content:'›'; color:var(--silver); margin-left:10px; font-size:18px; line-height:1; opacity:.7;}
   @media (hover:hover){ .bar-row.tappable:hover{background:rgba(255,255,255,.05);} }
+
+  /* ============ Opponents: tappable rows ============ */
+  .opp-row.tappable::after{content:'›'; margin-left:10px; color:var(--silver); font-size:18px; line-height:1; opacity:.7;}
+  .opp-row .opp-rec.pos{color:var(--win);} .opp-row .opp-rec.neg{color:var(--loss);}
+  @media (hover:hover){ .opp-row.tappable:hover{background:rgba(255,255,255,.05);} }
 </style>
 </head>
 <body>
@@ -672,6 +677,7 @@
 
   <div id="pane-opponents" class="tabpane">
     <div class="section-title"><span class="num-tag">·</span><h2>Record vs Opponent</h2></div>
+    <div class="tap-hint">Tap a team for the full head-to-head</div>
     <div id="opponentList"></div>
   </div>
 
@@ -1329,10 +1335,10 @@ function renderOpponentsTab(){
   el.innerHTML = opps.map(o=>{
     const rec = s.byOpp[o];
     const diff = rec.pf - rec.pa;
-    return `<div class="opp-row">
+    return `<div class="opp-row tappable" data-opp="${o}" role="button" tabindex="0">
       <img src="${logoUrl(o)}">
       <div class="opp-name">${teamName(o)}<div style="font-size:10.5px; color:var(--silver); font-weight:400;">${diff>=0?'+':''}${diff} pt diff</div></div>
-      <div class="opp-rec">${rec.w}-${rec.l}</div>
+      <div class="opp-rec ${rec.w > rec.l ? 'pos' : (rec.w < rec.l ? 'neg' : '')}">${rec.w}-${rec.l}</div>
     </div>`;
   }).join('');
 }
@@ -2355,7 +2361,7 @@ const Watch = (function(){
     }
   }
 
-  return {open, close, refresh, isOpen, persist, applyTaps, applyLive, queueAllOwn, chipHtml, sheetHtml, renderStats, exportData, importData, openFan};
+  return {open, close, refresh, isOpen, persist, applyTaps, applyLive, queueAllOwn, chipHtml, sheetHtml, renderStats, exportData, importData, openFan, totals};
 })();
 
 /* ================= Home: tappable cards + snapshot detail sheets ================= */
@@ -2698,6 +2704,36 @@ const Detail = (function(){
       `<div class="snap-h">Schedule · tap to open</div>` + dGames(left, g=>({text: g.home ? 'Home' : 'Away', cls: ''})));
   }
 
+  function opponent(o){
+    const name = teamName(o), all = sortedGames().filter(g=>g.opp === o);
+    const played = all.filter(g=>g.played), left = all.filter(g=>!g.played);
+    if(!played.length && !left.length){ dShow(name, 'No games found', dEmpty('This team is not on the schedule.')); return; }
+    const w = played.filter(g=>getResult(g) === 'W').length, l = played.length - w;
+    const home = played.filter(g=>g.home), road = played.filter(g=>!g.home);
+    const hw = home.filter(g=>getResult(g) === 'W').length, rw = road.filter(g=>getResult(g) === 'W').length;
+    const sc = played.filter(hasScores);
+    const pf = sc.reduce((s,g)=>s + g.knicksScore, 0), pa = sc.reduce((s,g)=>s + g.oppScore, 0);
+    // your picks and fan reactions against this team
+    const judged = played.filter(g=>predictions[g.id]);
+    const hits = judged.filter(g=>predictions[g.id] === getResult(g)).length;
+    let up = 0, down = 0; played.concat(left).forEach(g=>{ const t = Watch.totals(g.id); up += t.up; down += t.down; });
+    let body = '';
+    if(played.length){
+      body += dRow('Record', `${w}–${l}`, w > l ? 'pos' : (w < l ? 'neg' : '')) + dRow('Win %', pct(w, l)) +
+        dRow('At home', home.length ? `${hw}–${home.length - hw}` : '—') + dRow('On the road', road.length ? `${rw}–${road.length - rw}` : '—') +
+        dRow('Point differential', sc.length ? (pf - pa >= 0 ? '+' : '') + (pf - pa) : '—', sc.length ? (pf - pa >= 0 ? 'pos' : 'neg') : '') +
+        dRow('Avg margin', sc.length ? sgn((pf - pa) / sc.length) : '—', sc.length ? (pf - pa >= 0 ? 'pos' : 'neg') : '') +
+        dRow('Points for / against', sc.length ? `${(pf / sc.length).toFixed(1)} / ${(pa / sc.length).toFixed(1)}` : '—') +
+        (judged.length ? dRow('Your picks vs them', `${hits} of ${judged.length} right`) : '') +
+        ((up + down) ? dRow('Hype / Rage taps', `🙌 ${up} · 😤 ${down}`) : '') +
+        `<div class="snap-h">Played · tap to open</div>` + dGames(played.slice().reverse(), dResult);
+    } else {
+      body += dEmpty('You have not played them yet.');
+    }
+    if(left.length) body += `<div class="snap-h">Still to play · tap to open</div>` + dGames(left, g=>({text: g.home ? 'Home' : 'Away', cls: ''}));
+    dShow(name, played.length ? `${w}–${l} this season · ${left.length} game${left.length === 1 ? '' : 's'} left` : `${left.length} game${left.length === 1 ? '' : 's'} to play`, body);
+  }
+
   function open(kind, key){
     const pg = playedGames();
     if(kind === 'home') return split('Home record', pg.filter(g=>g.home));
@@ -2707,8 +2743,15 @@ const Detail = (function(){
     if(kind === 'bestwin' || kind === 'worstloss') return extremes(kind);
     if(kind === 'streak') return Snap.open('streak');
     if(kind === 'remaining') return remaining();
+    if(kind === 'opp') return opponent(key);
   }
   return {open};
+})();
+
+(function wireOpponents(){
+  document.getElementById('pane-opponents').addEventListener('click', e=>{
+    const c = e.target.closest('[data-opp]'); if(c) Detail.open('opp', c.dataset.opp);
+  });
 })();
 
 (function wireStats(){

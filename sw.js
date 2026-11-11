@@ -1,4 +1,4 @@
-const CACHE = 'knicks-2627-v17';
+const CACHE = 'knicks-2627-v18';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
